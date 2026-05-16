@@ -1,0 +1,166 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import Layout from "../../../../components/dashboard/Layout";
+import { ShieldPlus, ChevronLeft, Save, Loader2 } from "lucide-react";
+
+import { 
+    useCreatePermissionMutation, 
+    useGetPermissionsMetaQuery 
+} from "@/redux/features/auth/permission/permissionApis";
+
+const initialForm = {
+    name: "",
+    roles: [],
+};
+
+function hasPermission(permissionList, permissionName) {
+    return Array.isArray(permissionList) && permissionList.includes(permissionName);
+}
+
+export default function CreatePermissionPage() {
+    const router = useRouter();
+    const { role } = useParams();
+    const { permissions } = useSelector((state) => state.auth);
+    const resolvedRole = role?.toLowerCase();
+
+    const { data: meta, isLoading: metaLoading } = useGetPermissionsMetaQuery();
+    const [createPermission, { isLoading: saving }] = useCreatePermissionMutation();
+
+    const [form, setForm] = useState(initialForm);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    const canCreatePermissions = hasPermission(permissions, "permission.create");
+
+    function toggleRole(roleName) {
+        setForm((current) => ({
+            ...current,
+            roles: current.roles.includes(roleName)
+                ? current.roles.filter((item) => item !== roleName)
+                : [...current.roles, roleName],
+        }));
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        setError("");
+        setSuccess("");
+
+        try {
+            await createPermission(form).unwrap();
+            setSuccess("Permission created successfully.");
+            setTimeout(() => router.push(`/${resolvedRole}/permission`), 1500);
+        } catch (requestError) {
+            const validationErrors = requestError?.data?.errors;
+            if (validationErrors) {
+                setError(Object.values(validationErrors).flat().join(" "));
+            } else {
+                setError(requestError?.data?.message || "Unable to create permission.");
+            }
+        }
+    }
+
+
+
+    return (            
+            <div className="mx-auto space-y-6">
+                <div className="flex items-center justify-between">
+                    <Link 
+                        href={`/${resolvedRole}/permission`}
+                        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors font-medium text-sm"
+                    >
+                        <ChevronLeft size={18} />
+                        Back to Roles
+                    </Link>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <section className="rounded-[26px] bg-[linear-gradient(150deg,_#111827,_#1f2937)] p-6 text-white">
+                        <p className="text-xs uppercase tracking-[0.28em] text-amber-200/80">New record</p>
+                        <h2 className="mt-3 text-2xl font-semibold">Permission Details</h2>
+                        <p className="mt-3 text-sm leading-7 text-slate-300">
+                            Naming conventions like <code className="text-amber-200">resource.action</code> (e.g., student.delete) help keep the system organized.
+                        </p>
+                    </section>
+
+                    <div className="rounded-[26px] border border-slate-200/80 bg-white/92 p-6 shadow-sm">
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-slate-700">
+                                Permission name
+                            </label>
+                            <input
+                                type="text"
+                                required
+                                value={form.name}
+                                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                placeholder="Example: library.manage"
+                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+                            />
+                        </div>
+
+                        <div className="mt-8">
+                            <p className="text-sm font-medium text-slate-700">Assign to roles</p>
+                            <p className="text-xs text-slate-500 mb-4">Select which roles should automatically include this permission.</p>
+                            
+                            {metaLoading ? (
+                                <div className="py-4 text-sm text-slate-400">Loading available roles...</div>
+                            ) : (
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    {meta?.roles?.map((roleItem) => {
+                                        const checked = form.roles.includes(roleItem.name);
+                                        return (
+                                            <label
+                                                key={roleItem.name}
+                                                className={`flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 transition ${
+                                                    checked ? "border-amber-300 bg-amber-50" : "border-slate-200 bg-white"
+                                                }`}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={checked}
+                                                    onChange={() => toggleRole(roleItem.name)}
+                                                    className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                                                />
+                                                <span className="text-sm font-medium text-slate-900">{roleItem.name}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {error && (
+                            <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                {error}
+                            </div>
+                        )}
+
+                        {success && (
+                            <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                                {success}
+                            </div>
+                        )}
+
+                        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="flex-1 rounded-2xl bg-slate-950 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 disabled:opacity-60"
+                            >
+                                {saving ? "Creating..." : "Save Permission"}
+                            </button>
+                            <Link
+                                href={`/${resolvedRole}/permission`}
+                                className="flex-1 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-center text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                            >
+                                Cancel
+                            </Link>
+                        </div>
+                    </div>
+                </form>
+            </div>
+    );
+}

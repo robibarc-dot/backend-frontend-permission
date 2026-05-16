@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('mock_test_questions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mock_test_id')->constrained()->onDelete('cascade');
-            $table->foreignId('question_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('mock_test_id');
+            $table->unsignedBigInteger('question_id');
 
             $table->integer('order')->default(1); // Maintains 1-40 sequence
             $table->unsignedBigInteger('module_id'); // 'reading', 'listening', etc.

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('speaking_test_questions', function (Blueprint $table) {
             $table->id();            
-            $table->foreignId('speaking_test_id')->constrained()->onDelete('cascade');
-            $table->foreignId('question_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('speaking_test_id');
+            $table->unsignedBigInteger('question_id');
             $table->integer('order')->default(1); // Maintains 1-40 sequence
             $table->timestamps();
         });

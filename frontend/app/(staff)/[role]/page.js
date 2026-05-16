@@ -1,194 +1,188 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import Layout from "../../components/dashboard/Layout";
-import {
-    getPrimaryRole,
-    getRoleHomePath,
-    isStaffRole,
-} from "../../../lib/auth";
-
-const roleContent = {
-    "super-admin": {
-        title: "Super admin control center",
-        subtitle:
-            "Operate the entire platform with unrestricted dashboard access, governance authority, and system-wide visibility.",
-        heroTitle: "Full-spectrum oversight for super administrators",
-        heroText:
-            "Manage every dashboard module, enforce security policy, and step into any operational workflow without access barriers.",
-        metrics: [
-            { label: "Total modules", value: "All", detail: "No dashboard restrictions" },
-            { label: "Security posture", value: "100%", detail: "Global policy authority" },
-            { label: "Critical actions", value: "24/7", detail: "Always-ready escalation access" },
-        ],
-        panelTitle: "Super admin priorities",
-        panelItems: [
-            "Control all roles and permissions",
-            "Review system-wide activity",
-            "Handle high-risk escalations",
-        ],
-    },
-    admin: {
-        title: "Admin command center",
-        subtitle:
-            "Coordinate users, permissions, compliance, and platform activity from a single operational workspace.",
-        heroTitle: "Operational visibility for administrators",
-        heroText:
-            "Review access updates, monitor sensitive activity, and keep every team aligned around secure execution.",
-        metrics: [
-            { label: "Managed users", value: "1,284", detail: "42 invited this month" },
-            { label: "Role changes", value: "48", detail: "6 require approval" },
-            { label: "Audit score", value: "96%", detail: "Healthy governance posture" },
-        ],
-        panelTitle: "Admin priorities",
-        panelItems: [
-            "Approve role requests",
-            "Review permission exceptions",
-            "Export audit summaries",
-        ],
-    },
-    teacher: {
-        title: "Teacher workspace",
-        subtitle:
-            "Track classes, progress, and academic reporting in a calmer, role-focused teaching dashboard.",
-        heroTitle: "Teaching flow with quicker decisions",
-        heroText:
-            "Keep class performance, attendance trends, and learner support tasks visible without admin-only clutter.",
-        metrics: [
-            { label: "Active classes", value: "12", detail: "3 starting today" },
-            { label: "Pending grading", value: "86", detail: "14 urgent submissions" },
-            { label: "Attendance rate", value: "93%", detail: "Stable this week" },
-        ],
-        panelTitle: "Teacher priorities",
-        panelItems: [
-            "Review student progress",
-            "Publish class updates",
-            "Prepare weekly reports",
-        ],
-    },
-};
-
-export default function RoleDashboardPage({ params }) {
-    const router = useRouter();
-    const { user, roles, permissions } = useSelector((state) => state.auth);
-    const resolvedRole = params?.role?.toLowerCase();
-    const primaryRole = getPrimaryRole(user, roles);
-
-    useEffect(() => {
-        if (primaryRole && isStaffRole(primaryRole) && primaryRole !== resolvedRole) {
-            router.replace(getRoleHomePath(primaryRole));
-        }
-    }, [primaryRole, resolvedRole, router]);
-
-    if (!isStaffRole(resolvedRole)) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white">
-                <div className="rounded-[28px] border border-white/10 bg-white/8 p-8 text-center">
-                    <p className="text-xs uppercase tracking-[0.35em] text-amber-200/80">
-                        Invalid portal
-                    </p>
-                    <h1 className="mt-3 text-3xl font-semibold">Role not supported here</h1>
-                    <p className="mt-3 max-w-md text-sm leading-7 text-slate-300">
-                        This dynamic staff route is reserved for <strong>super-admin</strong>, <strong>admin</strong>, and <strong>teacher</strong>.
-                        Students use their own separate portal.
-                    </p>
-                </div>
-            </div>
-        );
-    }
-
-    const content = roleContent[resolvedRole];
-    const roleMismatch = primaryRole && primaryRole !== resolvedRole;
-
-    const permissionCount = Array.isArray(permissions) ? permissions.length : 0;
-
+export default function RoleDashboardPage() {
     return (
-        <Layout role={resolvedRole} title={content.title} subtitle={content.subtitle}>
-            <div className="grid gap-5 lg:grid-cols-[1.3fr_0.9fr]">
-                <section className="rounded-[26px] bg-[linear-gradient(145deg,_#1f2937,_#111827)] p-6 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                    <p className="text-xs uppercase tracking-[0.3em] text-amber-200/80">
-                        {resolvedRole} portal
-                    </p>
-                    <h2 className="mt-3 text-3xl font-semibold leading-tight">
-                        {content.heroTitle}
-                    </h2>
-                    <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
-                        {content.heroText}
-                    </p>
+        <div className="flex-1 p-4 md:p-8 overflow-x-hidden">
+            <header className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900">Dashboard Overview</h2>
+                <p className="text-gray-500 text-sm">Welcome back! Here's what's happening today.</p>
+            </header>
 
-                    <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                        {content.metrics.map((item) => (
-                            <div
-                                key={item.label}
-                                className="rounded-2xl border border-white/10 bg-white/8 p-4"
-                            >
-                                <p className="text-xs uppercase tracking-[0.22em] text-slate-300">
-                                    {item.label}
-                                </p>
-                                <p className="mt-3 text-2xl font-semibold">{item.value}</p>
-                                <p className="mt-1 text-sm text-emerald-300">{item.detail}</p>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                <section className="grid gap-5">
-                    <div className="rounded-[24px] border border-amber-200/70 bg-white/85 p-5 shadow-[0_10px_40px_rgba(120,84,44,0.08)]">
-                        <p className="text-xs uppercase tracking-[0.28em] text-amber-700">
-                            Signed in user
-                        </p>
-                        <h3 className="mt-2 text-2xl font-semibold text-slate-950">
-                            {user?.name || "Portal user"}
-                        </h3>
-                        <p className="mt-2 text-sm text-slate-600">
-                            {user?.email || "No email returned from API"}
-                        </p>
-
-                        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-2xl bg-slate-100 p-4">
-                                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">
-                                    Primary role
-                                </p>
-                                <p className="mt-2 text-lg font-semibold text-slate-900">
-                                    {primaryRole || "Unknown"}
-                                </p>
-                            </div>
-                            <div className="rounded-2xl bg-slate-100 p-4">
-                                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">
-                                    Permissions
-                                </p>
-                                <p className="mt-2 text-lg font-semibold text-slate-900">
-                                    {permissionCount}
-                                </p>
-                            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-blue-50 text-blue-500 rounded-xl">
+                            <i className="fas fa-users"></i>
                         </div>
+                        <span className="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+12%</span>
                     </div>
-
-                    <div className="rounded-[24px] border border-slate-200/80 bg-white/92 p-5">
-                        <p className="text-xs uppercase tracking-[0.28em] text-slate-500">
-                            {content.panelTitle}
-                        </p>
-                        <div className="mt-4 space-y-3">
-                            {content.panelItems.map((item) => (
-                                <div
-                                    key={item}
-                                    className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700"
-                                >
-                                    {item}
-                                </div>
-                            ))}
+                    <p className="text-2xl font-bold">248</p>
+                    <p className="text-xs text-gray-400">Total Students</p>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-purple-50 text-purple-500 rounded-xl">
+                            <i className="fas fa-book-open"></i>
                         </div>
+                        <span className="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+3</span>
                     </div>
-                </section>
+                    <p className="text-2xl font-bold">12</p>
+                    <p className="text-xs text-gray-400">Active Courses</p>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-green-50 text-green-500 rounded-xl">
+                            <i className="fas fa-file-alt"></i>
+                        </div>
+                        <span className="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+8%</span>
+                    </div>
+                    <p className="text-2xl font-bold">156</p>
+                    <p className="text-xs text-gray-400">Total Tests</p>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-orange-50 text-orange-500 rounded-xl">
+                            <i className="fas fa-chart-line"></i>
+                        </div>
+                        <span className="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+2%</span>
+                    </div>
+                    <p className="text-2xl font-bold">85%</p>
+                    <p className="text-xs text-gray-400">Avg. Score</p>
+                </div>
             </div>
 
-            {roleMismatch ? (
-                <div className="mt-5 rounded-[24px] border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-                    Redirecting this account to the <strong>{primaryRole}</strong> portal.
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                
+                <div className="xl:col-span-2 space-y-8">
+                    
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-gray-50 flex justify-between items-center">
+                            <h3 className="font-bold">Recent Students</h3>
+                            <a href="#" className="text-xs text-blue-600 font-semibold">View All</a>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-gray-50 text-gray-400 uppercase text-[10px] font-bold">
+                                    <tr>
+                                        <th className="px-6 py-4">Student</th>
+                                        <th className="px-6 py-4">Course</th>
+                                        <th className="px-6 py-4">Status</th>
+                                        <th className="px-6 py-4">Enrolled</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    <tr>
+                                        <td className="px-6 py-4">
+                                            <div className="font-bold text-gray-900">Sarah Ahmed</div>
+                                            <div className="text-[10px] text-gray-400">sarah@example.com</div>
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-500">Pre A1 Starter</td>
+                                        <td className="px-6 py-4"><span className="px-2 py-1 bg-green-50 text-green-500 text-[10px] font-bold rounded">active</span></td>
+                                        <td className="px-6 py-4 text-gray-400 text-xs">2 days ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="px-6 py-4">
+                                            <div className="font-bold text-gray-900">Ali Rahman</div>
+                                            <div className="text-[10px] text-gray-400">ali@example.com</div>
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-500">A1 Movers</td>
+                                        <td className="px-6 py-4"><span className="px-2 py-1 bg-green-50 text-green-500 text-[10px] font-bold rounded">active</span></td>
+                                        <td className="px-6 py-4 text-gray-400 text-xs">3 days ago</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                        <h3 className="font-bold mb-6">Course Performance</h3>
+                        <div className="space-y-6">
+                            <div className="p-4 border border-gray-100 rounded-xl">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h4 className="text-sm font-bold text-gray-700">Pre A1 Starter</h4>
+                                    <span className="text-[10px] text-gray-400">95 students</span>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4 mb-4">
+                                    <div><p className="text-[10px] text-gray-400">Enrolled</p><p className="font-bold">95</p></div>
+                                    <div><p className="text-[10px] text-gray-400">Completed</p><p className="font-bold">45</p></div>
+                                    <div><p className="text-[10px] text-gray-400">Avg Score</p><p className="font-bold">87%</p></div>
+                                </div>
+                                <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                    <div className="bg-blue-500 h-full w-[45%]"></div>
+                                </div>
+                            </div>
+                            <div className="p-4 border border-gray-100 rounded-xl">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h4 className="text-sm font-bold text-gray-700">A1 Movers</h4>
+                                    <span className="text-[10px] text-gray-400">82 students</span>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4 mb-4">
+                                    <div><p className="text-[10px] text-gray-400">Enrolled</p><p className="font-bold">82</p></div>
+                                    <div><p className="text-[10px] text-gray-400">Completed</p><p className="font-bold">38</p></div>
+                                    <div><p className="text-[10px] text-gray-400">Avg Score</p><p className="font-bold">85%</p></div>
+                                </div>
+                                <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                    <div className="bg-purple-500 h-full w-[40%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            ) : null}
-        </Layout>
+
+                <div className="space-y-8">
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <h3 className="font-bold mb-4 text-sm">Quick Actions</h3>
+                        <div className="space-y-3">
+                            <button className="w-full flex items-center gap-3 p-3 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold hover:bg-indigo-100 transition">
+                                <i className="fas fa-user-plus"></i> Add New Student
+                            </button>
+                            <button className="w-full flex items-center gap-3 p-3 bg-purple-50 text-purple-600 rounded-xl text-xs font-bold hover:bg-purple-100 transition">
+                                <i className="fas fa-plus-square"></i> Create Course
+                            </button>
+                            <button className="w-full flex items-center gap-3 p-3 bg-green-50 text-green-600 rounded-xl text-xs font-bold hover:bg-green-100 transition">
+                                <i className="fas fa-file-signature"></i> Create Assessment
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <h3 className="font-bold mb-6 text-sm">Recent Activity</h3>
+                        <div className="space-y-6 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-px before:bg-gray-100">
+                            <div className="relative pl-10">
+                                <div className="absolute left-0 p-1.5 bg-green-50 text-green-500 rounded-full text-[10px] border-4 border-white"><i className="fas fa-check"></i></div>
+                                <p className="text-xs font-bold">Sarah Ahmed <span className="font-normal text-gray-400">completed Grammar Test</span></p>
+                                <p className="text-[10px] text-gray-400 mt-1">10 min ago</p>
+                            </div>
+                            <div className="relative pl-10">
+                                <div className="absolute left-0 p-1.5 bg-blue-50 text-blue-500 rounded-full text-[10px] border-4 border-white"><i className="fas fa-user"></i></div>
+                                <p className="text-xs font-bold">Ali Rahman <span className="font-normal text-gray-400">enrolled in A1 Movers</span></p>
+                                <p className="text-[10px] text-gray-400 mt-1">1 hour ago</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-[#7030FF] p-6 rounded-2xl text-white shadow-lg">
+                        <div className="flex items-center gap-3 mb-6">
+                            <i className="fas fa-satellite-dish"></i>
+                            <h3 className="font-bold text-sm">System Status</h3>
+                        </div>
+                        <div className="space-y-3 text-xs">
+                            <div className="flex justify-between items-center opacity-90">
+                                <span>Server Status</span>
+                                <span className="flex items-center gap-1"><i className="fas fa-check-circle"></i> Online</span>
+                            </div>
+                            <div className="flex justify-between items-center opacity-90">
+                                <span>Database</span>
+                                <span className="flex items-center gap-1"><i className="fas fa-link"></i> Connected</span>
+                            </div>
+                            <div className="pt-3 border-t border-white/20 flex justify-between items-center opacity-70">
+                                <span>Last Backup</span>
+                                <span>2 hours ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }

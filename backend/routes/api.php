@@ -62,6 +62,16 @@ Route::middleware('auth:sanctum')->group(function () {
                 'message' => 'Admin Access'
             ]);
         });
+
+        Route::prefix('practice-test')->controller(PracticeTestController::class)->group(function () {
+            Route::get('/', 'index')->name('practice-test.index');
+            Route::get('/create', 'create')->name('practice-test.create');
+            Route::post('/store', 'store')->name('practice-test.store');
+            Route::get('/show/{id}', 'show')->name('practice-test.edit');
+            Route::put('/update/{id}', 'update')->name('practice-test.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('practice-test.delete');
+        });
+
     });
 
     Route::middleware('permission:student.create')->group(function () {

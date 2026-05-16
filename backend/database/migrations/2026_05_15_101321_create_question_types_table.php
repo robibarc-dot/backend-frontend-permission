@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('question_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('module_id')->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('module_id');
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('upload_hints')->nullable();
