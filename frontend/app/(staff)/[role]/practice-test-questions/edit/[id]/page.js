@@ -5,9 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, FileQuestion, Hash, Layers, Loader2, Save } from "lucide-react";
 import {
-    useGetPracticeTestQuestionQuery,
-    useUpdatePracticeTestQuestionMutation,
-} from "@/redux/features/mock/backend/practiceTestQuestionApi";
+    useGetMockTestQuestionQuery,
+    useUpdateMockTestQuestionMutation,
+} from "@/redux/features/mock/backend/mockTestQuestionApi";
 
 const initialForm = {
     mock_test_id: "",
@@ -40,8 +40,8 @@ export default function EditPracticeTestQuestionPage() {
     const { role, id } = useParams();
     const resolvedRole = role?.toLowerCase();
 
-    const { data: assignment, isLoading: fetching } = useGetPracticeTestQuestionQuery(id);
-    const [updateAssignment, { isLoading: saving }] = useUpdatePracticeTestQuestionMutation();
+    const { data: assignment, isLoading: fetching } = useGetMockTestQuestionQuery(id);
+    const [updateAssignment, { isLoading: saving }] = useUpdateMockTestQuestionMutation();
 
     const [form, setForm] = useState(initialForm);
     const [error, setError] = useState("");
