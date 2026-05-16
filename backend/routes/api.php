@@ -3,6 +3,14 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Backend\PermissionController;
 use App\Http\Controllers\Api\Backend\RoleController;
 use App\Http\Controllers\Api\Backend\UserController;
+use App\Http\Controllers\Api\Backend\Practice\{
+    PracticeTestController,
+    PracticeTestQuestionController
+};
+use App\Http\Controllers\Api\Backend\Mock\{
+    MockTestController,
+    MockTestQuestionController
+};
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -70,6 +78,31 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/show/{id}', 'show')->name('practice-test.edit');
             Route::put('/update/{id}', 'update')->name('practice-test.update');
             Route::delete('/destroy/{id}', 'destroy')->name('practice-test.delete');
+        });
+        Route::prefix('practice-test-question')->controller(PracticeTestQuestionController::class)->group(function () {
+            Route::get('/', 'index')->name('practice-test-question.index');
+            Route::get('/create', 'create')->name('practice-test-question.create');
+            Route::post('/store', 'store')->name('practice-test-question.store');
+            Route::get('/show/{id}', 'show')->name('practice-test-question.edit');
+            Route::put('/update/{id}', 'update')->name('practice-test-question.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('practice-test-question.delete');
+        });
+        Route::prefix('mock-test')->controller(MockTestController::class)->group(function () {
+            Route::get('/', 'index')->name('mock-test.index');
+            Route::get('/create', 'create')->name('mock-test.create');
+            Route::post('/store', 'store')->name('mock-test.store');
+            Route::get('/show/{id}', 'show')->name('mock-test.edit');
+            Route::put('/update/{id}', 'update')->name('mock-test.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('mock-test.delete');
+        });
+
+        Route::prefix('mock-test-question')->controller(MockTestQuestionController::class)->group(function () {
+            Route::get('/', 'index')->name('mock-test-question.index');
+            Route::get('/create', 'create')->name('mock-test-question.create');
+            Route::post('/store', 'store')->name('mock-test-question.store');
+            Route::get('/show/{id}', 'show')->name('mock-test-question.edit');
+            Route::put('/update/{id}', 'update')->name('mock-test-question.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('mock-test-question.delete');
         });
 
     });

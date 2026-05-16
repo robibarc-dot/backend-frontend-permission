@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Clock, FilePlus2, Loader2, Save, Settings2 } from "lucide-react";
-import { useCreatePracticeTestMutation } from "@/redux/features/practice-test/backend/practiceTestApi";
+import { useCreateMockTestMutation } from "@/redux/features/mock/backend/mockTestApi";
 
 const initialForm = {
     title: "",
@@ -32,11 +32,11 @@ function getRequestMessage(requestError, fallback) {
     return requestError?.data?.message || fallback;
 }
 
-export default function CreatePracticeTestPage() {
+export default function CreateMockTestPage() {
     const router = useRouter();
     const { role } = useParams();
     const resolvedRole = role?.toLowerCase();
-    const [createTest, { isLoading: saving }] = useCreatePracticeTestMutation();
+    const [createTest, { isLoading: saving }] = useCreateMockTestMutation();
 
     const [form, setForm] = useState(initialForm);
     const [slugEdited, setSlugEdited] = useState(false);
@@ -73,10 +73,10 @@ export default function CreatePracticeTestPage() {
                 ...form,
                 slug: form.slug || makeSlug(form.title),
             }).unwrap();
-            setSuccess("Practice test created successfully.");
-            setTimeout(() => router.push(`/${resolvedRole}/practice-tests`), 1500);
+            setSuccess("Mock test created successfully.");
+            setTimeout(() => router.push(`/${resolvedRole}/mock-tests`), 1500);
         } catch (requestError) {
-            setError(getRequestMessage(requestError, "Unable to create practice test."));
+            setError(getRequestMessage(requestError, "Unable to create mock test."));
         }
     }
 
@@ -84,11 +84,11 @@ export default function CreatePracticeTestPage() {
         <div className="mx-auto space-y-6">
             <div className="flex items-center justify-between">
                 <Link
-                    href={`/${resolvedRole}/practice-tests`}
+                    href={`/${resolvedRole}/mock-tests`}
                     className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors font-medium text-sm"
                 >
                     <ChevronLeft size={18} />
-                    Back to Practice Tests
+                    Back to Mock Tests
                 </Link>
             </div>
 
@@ -96,18 +96,18 @@ export default function CreatePracticeTestPage() {
                 <section className="rounded-[26px] bg-[linear-gradient(150deg,_#111827,_#1f2937)] p-8 text-white shadow-xl">
                     <div className="flex items-center gap-3 opacity-80">
                         <FilePlus2 size={20} className="text-amber-400" />
-                        <p className="text-xs uppercase tracking-[0.28em]">Assessment Management</p>
+                        <p className="text-xs uppercase tracking-[0.28em]">Mock Assessment Management</p>
                     </div>
-                    <h2 className="mt-4 text-3xl font-bold">Create Practice Test</h2>
+                    <h2 className="mt-4 text-3xl font-bold">Create Mock Test</h2>
                     <p className="mt-3 text-slate-400 max-w-2xl leading-relaxed">
-                        Configure the test identity, duration, category, and access type before adding questions.
+                        Configure the mock exam identity, duration, category, and access type.
                     </p>
                 </section>
 
                 <div className="rounded-[26px] border border-slate-200 bg-white p-8 shadow-sm space-y-8">
                     <div className="grid gap-6 md:grid-cols-2">
                         <div>
-                            <label className="mb-2 block text-sm font-semibold text-slate-700">Test Title</label>
+                            <label className="mb-2 block text-sm font-semibold text-slate-700">Mock Test Title</label>
                             <input
                                 type="text"
                                 required
@@ -146,8 +146,8 @@ export default function CreatePracticeTestPage() {
                         <h3 className="text-sm font-semibold text-slate-700 mb-6">Choose Category</h3>
                         <div className="grid gap-3 sm:grid-cols-2">
                             {[
-                                { value: "academic", label: "Academic", description: "Focused learning and exam preparation." },
-                                { value: "general", label: "General", description: "Open practice for broad skill checks." },
+                                { value: "academic", label: "Academic", description: "Focused mock exams for structured preparation." },
+                                { value: "general", label: "General", description: "Broad mock tests for open practice." },
                             ].map((category) => {
                                 const isSelected = form.category === category.value;
                                 return (
@@ -172,7 +172,7 @@ export default function CreatePracticeTestPage() {
                     <div className="rounded-2xl bg-slate-50 p-6 border border-slate-100">
                         <div className="flex items-center gap-2 mb-4">
                             <Settings2 size={16} className="text-slate-400" />
-                            <h3 className="text-sm font-semibold text-slate-700">Test Configuration</h3>
+                            <h3 className="text-sm font-semibold text-slate-700">Mock Test Configuration</h3>
                         </div>
                         <div className="flex flex-wrap gap-2">
                             <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-[11px] font-medium text-slate-600">Duration: {form.duration_mins || 0} minutes</span>
@@ -216,7 +216,7 @@ export default function CreatePracticeTestPage() {
 
                     <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-2xl bg-slate-950 px-8 py-3.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 disabled:opacity-60">
                         {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-                        {saving ? "Creating..." : "Save Practice Test"}
+                        {saving ? "Creating..." : "Save Mock Test"}
                     </button>
                 </div>
             </form>

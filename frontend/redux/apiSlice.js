@@ -24,7 +24,10 @@ export const apiSlice = createApi({
     baseQuery,
     tagTypes: [
         "User",
-        "PracticeTest"
+        "PracticeTest",
+        "PracticeTestQuestion",
+        "MockTest",
+        "MockTestQuestion",
     ],
     endpoints: () => ({}),
 });
