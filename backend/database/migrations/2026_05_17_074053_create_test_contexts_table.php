@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mock_test_questions', function (Blueprint $table) {
+        Schema::create('test_contexts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('mock_test_id');
-            $table->unsignedBigInteger('question_id');
-            $table->integer('order')->default(1); // Maintains 1-40 sequence
-            $table->unsignedBigInteger('module_id'); // 'reading', 'listening', etc.
+            $table->unsignedBigInteger('test_section_id');
+            $table->text('passage_text')->nullable();
+            $table->string('image')->nullable();
+            $table->string('audio')->nullable();            
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mock_test_questions');
+        Schema::dropIfExists('passages');
     }
 };

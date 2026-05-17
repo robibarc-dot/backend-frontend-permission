@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('test_context_id');
             $table->unsignedBigInteger('module_id');
             $table->unsignedBigInteger('question_type_id');
-            $table->enum('status',['active','inactive'])->default('active');            
+            $table->integer('question_mark');
+            $table->integer('sequence_number')->default(1); // Maintains 1-40 sequence
+            $table->enum('status',['active','inactive'])->default('active');
             $table->timestamps();
         });
     }
