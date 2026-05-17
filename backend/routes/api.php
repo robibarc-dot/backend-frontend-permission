@@ -3,6 +3,11 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Backend\PermissionController;
 use App\Http\Controllers\Api\Backend\RoleController;
 use App\Http\Controllers\Api\Backend\UserController;
+use App\Http\Controllers\Api\Backend\Common\{
+    ModuleController,
+    TestContextController,
+    TestSectionController
+};
 use App\Http\Controllers\Api\Backend\Practice\{
     PracticeTestController,
     PracticeTestQuestionController
@@ -71,6 +76,14 @@ Route::middleware('auth:sanctum')->group(function () {
             ]);
         });
 
+        Route::prefix('module')->controller(ModuleController::class)->group(function () {
+            Route::get('/', 'index')->name('module.index');
+            Route::get('/create', 'create')->name('module.create');
+            Route::post('/store', 'store')->name('module.store');
+            Route::get('/show/{id}', 'show')->name('module.edit');
+            Route::put('/update/{id}', 'update')->name('module.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('module.delete');
+        });
         Route::prefix('practice-test')->controller(PracticeTestController::class)->group(function () {
             Route::get('/', 'index')->name('practice-test.index');
             Route::get('/create', 'create')->name('practice-test.create');
@@ -103,6 +116,22 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/show/{id}', 'show')->name('mock-test-question.edit');
             Route::put('/update/{id}', 'update')->name('mock-test-question.update');
             Route::delete('/destroy/{id}', 'destroy')->name('mock-test-question.delete');
+        });
+
+        Route::prefix('test-section')->controller(TestSectionController::class)->group(function () {
+            Route::get('/', 'index')->name('test-section.index');
+            Route::post('/store', 'store')->name('test-section.store');
+            Route::get('/show/{id}', 'show')->name('test-section.edit');
+            Route::put('/update/{id}', 'update')->name('test-section.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('test-section.delete');
+        });
+
+        Route::prefix('test-context')->controller(TestContextController::class)->group(function () {
+            Route::get('/', 'index')->name('test-context.index');
+            Route::post('/store', 'store')->name('test-context.store');
+            Route::get('/show/{id}', 'show')->name('test-context.edit');
+            Route::put('/update/{id}', 'update')->name('test-context.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('test-context.delete');
         });
 
     });

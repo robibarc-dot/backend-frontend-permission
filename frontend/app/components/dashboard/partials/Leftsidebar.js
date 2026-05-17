@@ -34,6 +34,7 @@ function getNavItems(role) {
         { label: "Users", href: `${basePath}/user`, icon: Users, match: 'prefix', badge: "248" },
         { label: "Roles", href: `${basePath}/role`, icon: ShieldCheck, match: 'prefix', badge: "12" },
         { label: "Permissions", href: `${basePath}/permission`, icon: Settings, match: 'prefix', badge: "84" },
+        { label: "Modules", href: `${basePath}/modules`, icon: FileText, match: 'prefix', badge: "New" },
         { label: "Practice Tests", href: `${basePath}/practice-tests`, icon: FileText, match: 'prefix', badge: "New" },
         { label: "Mock Tests", href: `${basePath}/mock-tests`, icon: FileText, match: 'prefix', badge: "New" },
     ];

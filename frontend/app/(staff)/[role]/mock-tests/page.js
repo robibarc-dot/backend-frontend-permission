@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import DynamicDataTable from "../../../components/dashboard/common/DynamicDataTable";
-import { Clock, Edit2, FileText, Loader2, Plus } from "lucide-react";
+import { Clock, Edit2, FileText, Layers, Loader2, Plus } from "lucide-react";
 import {
     useDeleteMockTestMutation,
     useGetMockTestsQuery,
@@ -115,13 +115,22 @@ export default function MockTestsListPage() {
             key: "actions",
             align: "right",
             render: (item) => (
-                <Link
-                    href={`/${resolvedRole}/mock-tests/edit/${item.id}`}
-                    className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors inline-block"
-                    title="Edit Mock Test"
-                >
-                    <Edit2 size={18} />
-                </Link>
+                <>
+                    <Link
+                        href={`/${resolvedRole}/test-sections?test_type=mock&test_id=${item.id}`}
+                        className="p-2 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors inline-block"
+                        title="Manage Test Sections"
+                    >
+                        <Layers size={18} />
+                    </Link>
+                    <Link
+                        href={`/${resolvedRole}/mock-tests/edit/${item.id}`}
+                        className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors inline-block"
+                        title="Edit Mock Test"
+                    >
+                        <Edit2 size={18} />
+                    </Link>
+                </>
             ),
         },
     ];
