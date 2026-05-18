@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useParams } from "next/navigation";
 import { useDispatch } from "react-redux";
@@ -14,7 +15,8 @@ import {
     Users2, 
     GraduationCap, 
     LogOut, 
-    X 
+    X,
+    ChevronDown
 } from "lucide-react";
 
 function getNavItems(role) {
@@ -31,12 +33,37 @@ function getNavItems(role) {
 
     return [
         { label: "Overview", href: basePath, icon: LayoutDashboard, match: 'exact' },
-        { label: "Users", href: `${basePath}/user`, icon: Users, match: 'prefix', badge: "248" },
-        { label: "Roles", href: `${basePath}/role`, icon: ShieldCheck, match: 'prefix', badge: "12" },
-        { label: "Permissions", href: `${basePath}/permission`, icon: Settings, match: 'prefix', badge: "84" },
-        { label: "Modules", href: `${basePath}/modules`, icon: FileText, match: 'prefix', badge: "New" },
-        { label: "Practice Tests", href: `${basePath}/practice-tests`, icon: FileText, match: 'prefix', badge: "New" },
-        { label: "Mock Tests", href: `${basePath}/mock-tests`, icon: FileText, match: 'prefix', badge: "New" },
+        { 
+            label: "User Management", 
+            icon: Users,
+            children: [
+                { label: "Users", href: `${basePath}/user`, icon: Users, match: 'prefix', badge: "248" },
+                { label: "Roles", href: `${basePath}/role`, icon: ShieldCheck, match: 'prefix', badge: "12" },
+                { label: "Permissions", href: `${basePath}/permission`, icon: Settings, match: 'prefix', badge: "84" },
+            ]
+        },
+        {
+            label: "Mock Management",
+            icon: GraduationCap,
+            children: [
+                { label: "Mock Tests", href: `${basePath}/mock-tests`, icon: FileText, match: 'prefix', badge: "New" },
+            ]
+        },
+        {
+            label: "Practice Management",
+            icon: BookOpen,
+            children: [
+                { label: "Practice Tests", href: `${basePath}/practice-tests`, icon: FileText, match: 'prefix', badge: "New" },
+            ]
+        },
+        {
+            label: "Common Features",
+            icon: Settings,
+            children: [
+                { label: "Modules", href: `${basePath}/modules`, icon: FileText, match: 'prefix', badge: "New" },
+                { label: "Question Types", href: `${basePath}/question-types`, icon: FileText, match: 'prefix', badge: "New" },
+            ]
+        },
     ];
 }
 
@@ -46,6 +73,32 @@ export default function Leftsidebar({ params, isOpen, onClose }) {
     const dispatch = useDispatch();
     const { role } = useParams();    
     const navItems = getNavItems(role);
+
+    const [openMenus, setOpenMenus] = useState({});
+
+    const toggleMenu = (label) => {
+        setOpenMenus((prev) => ({
+            ...prev,
+            [label]: !prev[label],
+        }));
+    };
+
+    useEffect(() => {
+        const initialOpen = {};
+        navItems.forEach(item => {
+            if (item.children) {
+                const hasActiveChild = item.children.some(child => 
+                    child.href && (child.match === 'prefix' 
+                        ? pathname === child.href || pathname.startsWith(`${child.href}/`)
+                        : pathname === child.href)
+                );
+                if (hasActiveChild) {
+                    initialOpen[item.label] = true;
+                }
+            }
+        });
+        setOpenMenus(prev => ({ ...prev, ...initialOpen }));
+    }, [pathname, role]);
     
     const roleLabel = role
         .split("-")
@@ -100,8 +153,74 @@ export default function Leftsidebar({ params, isOpen, onClose }) {
                 </div>
 
                 {/* Navigation Section */}
-                <nav className="flex-1 space-y-1.5">
-                    {navItems.map(({ label, href, icon: Icon, badge, match }) => {
+                <nav className="flex-1 space-y-1.5 overflow-y-auto pr-2">
+                    {navItems.map((item) => {
+                        const { label, href, icon: Icon, badge, match, children } = item;
+
+                        if (children) {
+                            const isMenuOpen = !!openMenus[label];
+                            const hasActiveChild = children.some(child => 
+                                child.href && (child.match === 'prefix' 
+                                    ? pathname === child.href || pathname.startsWith(`${child.href}/`)
+                                    : pathname === child.href)
+                            );
+
+                            return (
+                                <div key={label} className="space-y-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleMenu(label)}
+                                        className={`group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                                            hasActiveChild
+                                                ? "bg-blue-50/50 text-blue-600"
+                                                : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                                        }`}
+                                    >
+                                        <Icon size={18} />
+                                        <span className="flex-1 text-left">{label}</span>
+                                        <ChevronDown size={16} className={`transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""}`} />
+                                    </button>
+                                    
+                                    {isMenuOpen && (
+                                        <div className="ml-6 space-y-1 border-l border-slate-100 pl-4">
+                                            {children.map((child) => {
+                                                const isChildActive = child.href 
+                                                    ? child.match === 'prefix'
+                                                        ? pathname === child.href || pathname.startsWith(`${child.href}/`)
+                                                        : pathname === child.href
+                                                    : false;
+                                                
+                                                const ChildIcon = child.icon;
+
+                                                return (
+                                                    <Link
+                                                        key={child.label}
+                                                        href={child.href}
+                                                        onClick={onClose}
+                                                        className={`group flex items-center gap-3 rounded-xl px-4 py-2 text-xs font-medium transition ${
+                                                            isChildActive
+                                                                ? "text-blue-600 font-semibold"
+                                                                : "text-slate-500 hover:text-slate-800"
+                                                        }`}
+                                                    >
+                                                        {ChildIcon && <ChildIcon size={14} />}
+                                                        <span>{child.label}</span>
+                                                        {child.badge && (
+                                                            <span className={`ml-auto rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
+                                                                isChildActive ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
+                                                            }`}>
+                                                                {child.badge}
+                                                            </span>
+                                                        )}
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        }
+
                         const isActive = href
                             ? match === 'prefix'
                                 ? pathname === href || pathname.startsWith(`${href}/`)

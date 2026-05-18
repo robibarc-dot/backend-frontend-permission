@@ -186,13 +186,21 @@ export default function TestSectionsPage() {
             key: "actions",
             align: "right",
             render: (item) => (
-                <Link
-                    href={`/${resolvedRole}/test-sections/edit/${item.id}`}
-                    className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors inline-block"
-                    title="Edit Test Section"
-                >
-                    <Edit2 size={18} />
-                </Link>
+                <>
+                    <Link href={`/${resolvedRole}/question-groups?module_id=${item.module_id}&test_section_id=${item.id}`}
+                        className="p-2 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors inline-block"
+                        title="Manage Question Groups"
+                    >
+                        <Layers size={18} />
+                    </Link>
+                    <Link
+                        href={`/${resolvedRole}/test-sections/edit/${item.id}`}
+                        className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors inline-block"
+                        title="Edit Test Section"
+                    >
+                        <Edit2 size={18} />
+                    </Link>
+                </>
             ),
         },
     ];

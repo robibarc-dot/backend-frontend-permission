@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
+import React from 'react';
+import Link from 'next/link';
+import { useRouter, useParams } from 'next/navigation';
 import { useSelector } from "react-redux";
+import { 
+    useGetPracticeTestsQuery, 
+    useDeletePracticeTestMutation 
+} from '@/redux/features/practice-test/backend/practiceTestApi';
 import DynamicDataTable from "../../../components/dashboard/common/DynamicDataTable";
-import { Clock, Edit2, FileText, Loader2, Plus } from "lucide-react";
-import {
-    useDeletePracticeTestMutation,
-    useGetPracticeTestsQuery,
-} from "@/redux/features/practice-test/backend/practiceTestApi";
+import { Clock, Edit2, FileText, Layers, Loader2, Plus } from "lucide-react";
 import {
     getPrimaryRole,
     getRoleHomePath,
@@ -22,8 +22,18 @@ export default function PracticeTestsListPage() {
     const resolvedRole = role?.toLowerCase();
     const primaryRole = getPrimaryRole(user, userRoles);
 
-    const { data: tests = [], isLoading, isError } = useGetPracticeTestsQuery();
+    const { data: tests, isLoading, isError } = useGetPracticeTestsQuery();
     const [deleteTest, { isLoading: isDeleting }] = useDeletePracticeTestMutation();
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this practice test?')) {
+            try {
+                await deleteTest(id).unwrap();
+            } catch (err) {
+                alert('Failed to delete the test');
+            }
+        }
+    };
 
     React.useEffect(() => {
         if (primaryRole && primaryRole !== resolvedRole) {
@@ -31,10 +41,10 @@ export default function PracticeTestsListPage() {
         }
     }, [primaryRole, resolvedRole, router]);
 
-    const practiceTests = tests.map((test) => ({
+    const practiceTests = tests?.map((test) => ({
         ...test,
-        name: test.title,
-    }));
+        name: test.title, // DynamicDataTable expects a 'name' field for search/filter
+    })) || [];
 
     const filterConfigs = [
         { key: "title", label: "Title", type: "text", placeholder: "Search practice tests..." },
@@ -115,20 +125,24 @@ export default function PracticeTestsListPage() {
             key: "actions",
             align: "right",
             render: (item) => (
-                <Link
-                    href={`/${resolvedRole}/practice-tests/edit/${item.id}`}
-                    className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors inline-block"
-                    title="Edit Practice Test"
-                >
-                    <Edit2 size={18} />
-                </Link>
+                <>
+                    <Link href={`/${resolvedRole}/test-sections?test_type=practice&test_id=${item.id}`}
+                        className="p-2 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors inline-block"
+                        title="Manage Test Sections"
+                    >
+                        <Layers size={18} />
+                    </Link>
+                    <Link
+                        href={`/${resolvedRole}/practice-tests/edit/${item.id}`}
+                        className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors inline-block"
+                        title="Edit Practice Test"
+                    >
+                        <Edit2 size={18} />
+                    </Link>
+                </>
             ),
         },
     ];
-
-    const handleDelete = async (item) => {
-        await deleteTest(item.id).unwrap();
-    };
 
     if (isLoading) {
         return (
@@ -156,14 +170,14 @@ export default function PracticeTestsListPage() {
                         <FileText className="text-blue-600" size={28} />
                         Practice Tests
                     </h1>
-                    <p className="text-sm text-slate-500 font-medium">Manage test records, timing, categories, and availability.</p>
+                    <p className="text-sm text-slate-500 font-medium">Manage practice exam records, timing, categories, and availability.</p>
                 </div>
                 <Link
                     href={`/${resolvedRole}/practice-tests/create`}
                     className="flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95"
                 >
                     <Plus size={20} />
-                    Create Test
+                    Create Practice Test
                 </Link>
             </div>
 

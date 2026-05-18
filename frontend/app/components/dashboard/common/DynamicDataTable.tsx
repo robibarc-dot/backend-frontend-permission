@@ -24,7 +24,7 @@ interface DynamicTableProps<T> {
 export default function DynamicDataTable<T extends { id: number | string; name?: string }>({
   data = [],
   columns,
-  filterConfigs,
+  filterConfigs = [],
   onDelete,
   isDeleting = false,
   perPage = 5,

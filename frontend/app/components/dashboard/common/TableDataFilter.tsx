@@ -22,7 +22,7 @@ interface Props {
   className?: string;
 }
 
-const TableDataFilter = ({ configs, onFilterChange, className = "" }: Props) => {
+const TableDataFilter = ({ configs = [], onFilterChange, className = "" }: Props) => {
   const [filters, setFilters] = useState<Record<string, any>>({});
   
   const [isExpanded, setIsExpanded] = useState(false); 

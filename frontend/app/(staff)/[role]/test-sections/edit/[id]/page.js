@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, FileText, Hash, Layers, Loader2, Save } from "lucide-react";
 import { 
@@ -112,7 +112,7 @@ export default function EditTestSectionPage() {
         <div className="mx-auto space-y-6">
             <div className="flex items-center justify-between">
                 <Link
-                    href={`/${resolvedRole}/test-sections`}
+                    href={`/${resolvedRole}/test-sections?test_type=${form.test_type}&test_id=${form.test_id}`}
                     className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors font-medium text-sm"
                 >
                     <ChevronLeft size={18} />

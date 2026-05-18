@@ -6,7 +6,10 @@ use App\Http\Controllers\Api\Backend\UserController;
 use App\Http\Controllers\Api\Backend\Common\{
     ModuleController,
     TestContextController,
-    TestSectionController
+    TestSectionController,
+    QuestionTypeController,
+    QuestionGroupController,
+    QuestionController,
 };
 use App\Http\Controllers\Api\Backend\Practice\{
     PracticeTestController,
@@ -132,6 +135,20 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/show/{id}', 'show')->name('test-context.edit');
             Route::put('/update/{id}', 'update')->name('test-context.update');
             Route::delete('/destroy/{id}', 'destroy')->name('test-context.delete');
+        });
+        Route::prefix('question-type')->controller(QuestionTypeController::class)->group(function () {
+            Route::get('/', 'index')->name('question-type.index');
+            Route::post('/store', 'store')->name('question-type.store');
+            Route::get('/show/{id}', 'show')->name('question-type.edit');
+            Route::put('/update/{id}', 'update')->name('question-type.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('question-type.delete');
+        });
+        Route::prefix('question-group')->controller(QuestionGroupController::class)->group(function () {
+            Route::get('/', 'index')->name('question-group.index');
+            Route::post('/store', 'store')->name('question-group.store');
+            Route::get('/show/{id}', 'show')->name('question-group.edit');
+            Route::put('/update/{id}', 'update')->name('question-group.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('question-group.delete');
         });
 
     });

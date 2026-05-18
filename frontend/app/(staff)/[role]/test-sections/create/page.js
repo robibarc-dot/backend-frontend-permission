@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, FileText, Hash, Layers, Loader2, Save } from "lucide-react";
+import { ChevronLeft, FileText, Hash, Layers, Loader2, Save, Plus } from "lucide-react";
 import { 
-    useGetTestSectionQuery, 
-    useUpdateTestSectionMutation 
+    useCreateTestSectionMutation 
 } from "@/redux/features/common/backend/testSectionApi";
 import { useGetMockTestsQuery } from "@/redux/features/mock/backend/mockTestApi";
 import { useGetPracticeTestsQuery } from "@/redux/features/practice-test/backend/practiceTestApi";
@@ -40,13 +39,13 @@ function toPayload(form) {
     };
 }
 
-export default function EditTestSectionPage() {
+export default function CreateTestSectionPage() {
     const router = useRouter();
-    const { role, id } = useParams();
+    const searchParams = useSearchParams();
+    const { role } = useParams();
     const resolvedRole = role?.toLowerCase();
 
-    const { data: section, isLoading: fetching } = useGetTestSectionQuery(id);
-    const [updateSection, { isLoading: saving }] = useUpdateTestSectionMutation();
+    const [createSection, { isLoading: saving }] = useCreateTestSectionMutation();
     const { data: modules = [], isLoading: loadingModules } = useGetModulesQuery();
 
     const [form, setForm] = useState(initialForm);
@@ -63,17 +62,19 @@ export default function EditTestSectionPage() {
     const availableTests = form.test_type === "mock" ? mockTests : practiceTests;
     const isLoadingTests = form.test_type === "mock" ? loadingMocks : loadingPractices;
 
+    // Pre-fill form from URL search parameters
     useEffect(() => {
-        if (section) {
-            setForm({
-                test_type: section.test_type || "practice",
-                test_id: section.test_id || "",
-                title: section.title || "",
-                module_id: section.module_id || "",
-                order: section.order || 1,
-            });
+        const queryTestType = searchParams.get("test_type");
+        const queryTestId = searchParams.get("test_id");
+
+        if (queryTestType || queryTestId) {
+            setForm((prev) => ({
+                ...prev,
+                test_type: queryTestType || prev.test_type,
+                test_id: queryTestId || prev.test_id,
+            }));
         }
-    }, [section]);
+    }, [searchParams]);
 
     function updateField(field, value) {
         setForm((current) => ({
@@ -88,31 +89,22 @@ export default function EditTestSectionPage() {
         setSuccess("");
 
         try {
-            await updateSection({
-                id,
-                body: toPayload(form),
+            await createSection({
+                ...toPayload(form),
             }).unwrap();
-            setSuccess("Test section updated successfully.");
-            setTimeout(() => router.push(`/${resolvedRole}/test-sections`), 1500);
+            setSuccess("Test section create successfully.");
+            setTimeout(() => router.push(`/${resolvedRole}/test-sections/?test_type=${searchParams.get("test_type")}&test_id=${searchParams.get("test_id")}`), 1500);
         } catch (requestError) {
-            setError(getRequestMessage(requestError, "Unable to update test section."));
+            setError(getRequestMessage(requestError, "Unable to create test section."));
         }
     }
 
-    if (fetching) {
-        return (
-            <div className="flex h-[400px] flex-col items-center justify-center gap-4 text-slate-500">
-                <Loader2 className="animate-spin text-blue-600" size={32} />
-                <p className="font-medium">Retrieving test section...</p>
-            </div>
-        );
-    }
 
     return (
         <div className="mx-auto space-y-6">
             <div className="flex items-center justify-between">
                 <Link
-                    href={`/${resolvedRole}/test-sections`}
+                    href={`/${resolvedRole}/test-sections/?test_type=${searchParams.get("test_type")}&test_id=${searchParams.get("test_id")}`}
                     className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors font-medium text-sm"
                 >
                     <ChevronLeft size={18} />
@@ -123,12 +115,12 @@ export default function EditTestSectionPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
                 <section className="rounded-[26px] bg-[linear-gradient(150deg,_#111827,_#1f2937)] p-8 text-white shadow-xl">
                     <div className="flex items-center gap-3 opacity-80">
-                        <FileText size={20} className="text-amber-400" />
-                        <p className="text-xs uppercase tracking-[0.28em]">Test Section ID: {id}</p>
+                        <Plus size={20} className="text-amber-400" />
+                        <p className="text-xs uppercase tracking-[0.28em]">New Section</p>
                     </div>
-                    <h2 className="mt-4 text-3xl font-bold">Edit Section</h2>
+                    <h2 className="mt-4 text-3xl font-bold">Create Section</h2>
                     <p className="mt-3 text-slate-400 max-w-2xl leading-relaxed">
-                        Update the details, parent test, or module for this section.
+                        Define a new section for a practice or mock test.
                     </p>
                 </section>
 
@@ -233,7 +225,7 @@ export default function EditTestSectionPage() {
 
                     <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-2xl bg-slate-950 px-8 py-3.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 disabled:opacity-60">
                         {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-                        {saving ? "Updating..." : "Update Section"}
+                        {saving ? "Creating..." : "Create Section"}
                     </button>
                 </div>
             </form>
