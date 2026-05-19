@@ -92,7 +92,9 @@ export default function CreateQuestionGroupPage() {
     const searchParams = useSearchParams();
     const resolvedRole = role?.toLowerCase();
 
-    const moduleId = searchParams.get('module_id');
+    const moduleId = searchParams.get('module_id');    
+    const testSectionId = searchParams.get('test_section_id');
+    
     const [createQuestionGroup, { isLoading: saving }] = useCreateQuestionGroupMutation();
     const { data: testSections, isLoading: loadingSections } = useGetTestSectionsQuery();
     const { data: questionTypes, isLoading: loadingTypes } = useGetQuestionTypesQuery();
@@ -119,7 +121,6 @@ export default function CreateQuestionGroupPage() {
         return questionTypes.filter(type => String(type.module_id) === String(moduleId));
     }, [questionTypes, moduleId]);
 
-    const testSectionId = searchParams.get('test_section_id');
     useEffect(() => {
         if (testSectionId) {
             setForm((current) => ({
@@ -144,7 +145,7 @@ export default function CreateQuestionGroupPage() {
         try {
             await createQuestionGroup(toPayload(form)).unwrap();
             setSuccess("Question group created successfully.");
-            setTimeout(() => router.push(`/${resolvedRole}/question-groups`), 1500);
+            setTimeout(() => router.push(`/${resolvedRole}/question-groups?module_id=${moduleId}&test_section_id=${testSectionId}`), 1500);
         } catch (requestError) {
             setError(getRequestMessage(requestError, "Unable to create question group."));
         }
@@ -154,7 +155,7 @@ export default function CreateQuestionGroupPage() {
         <div className="mx-auto space-y-6">
             <div className="flex items-center justify-between">
                 <Link
-                    href={`/${resolvedRole}/question-groups`}
+                    href={`/${resolvedRole}/question-groups?module_id=${moduleId}&test_section_id=${testSectionId}`}
                     className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors font-medium text-sm"
                 >
                     <ChevronLeft size={18} />

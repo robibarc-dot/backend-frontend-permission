@@ -30,6 +30,7 @@ export const apiSlice = createApi({
         "MockTestQuestion",
         "TestSection",
         "TestContext",
+        "Question",
     ],
     endpoints: () => ({}),
 });
