@@ -150,6 +150,13 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('/update/{id}', 'update')->name('question-group.update');
             Route::delete('/destroy/{id}', 'destroy')->name('question-group.delete');
         });
+        Route::prefix('question')->controller(QuestionController::class)->group(function () {
+            Route::get('/', 'index')->name('question.index');
+            Route::post('/store', 'store')->name('question.store');
+            Route::get('/show/{id}', 'show')->name('question.edit');
+            Route::put('/update/{id}', 'update')->name('question.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('question.delete');
+        });
 
     });
 

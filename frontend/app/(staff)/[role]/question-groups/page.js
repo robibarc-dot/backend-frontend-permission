@@ -116,6 +116,12 @@ export default function QuestionGroupsListPage() {
             align: "right",
             render: (item) => (
                 <div className="flex justify-end gap-1">
+                    <Link href={`/${resolvedRole}/questions?module_id=${moduleId}&question_group_id=${item.id}&question_type_id=${item.question_type_id}}`}
+                        className="p-2 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors inline-block"
+                        title="`Manage Question Groups"
+                    >
+                        <Layers size={18} />
+                    </Link>
                     <Link
                         href={`/${resolvedRole}/question-groups/edit/${item.id}`}
                         className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"

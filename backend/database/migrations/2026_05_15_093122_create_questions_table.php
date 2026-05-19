@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('test_context_id');
             $table->unsignedBigInteger('module_id');
             $table->unsignedBigInteger('question_type_id');
+            $table->text('question_text');
             $table->integer('question_mark');
             $table->integer('sequence_number')->default(1); // Maintains 1-40 sequence
             $table->enum('status',['active','inactive'])->default('active');
