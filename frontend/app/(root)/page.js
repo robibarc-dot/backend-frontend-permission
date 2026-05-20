@@ -19,9 +19,9 @@ const portalCards = [
 ];
 
 export default function Home() {
-    return (
+    return (        
         <main>
-            <section id="home" className="px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+            <section id="home" className="px-4 pb-16 pt-12 sm:px-6 lg:px-8">
                 <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
                     <div className="rounded-[36px] bg-[linear-gradient(145deg,_#102033_0%,_#17314a_52%,_#254764_100%)] p-8 text-white shadow-[0_32px_120px_rgba(16,32,51,0.28)] sm:p-12">
                         <p className="text-xs uppercase tracking-[0.38em] text-amber-200/85">
@@ -54,7 +54,7 @@ export default function Home() {
                     <div className="grid gap-4">
                         <div className="rounded-[30px] border border-white/70 bg-white/80 p-6 shadow-[0_24px_80px_rgba(120,84,45,0.12)] backdrop-blur">
                             <p className="text-xs uppercase tracking-[0.28em] text-amber-700">Platform Focus</p>
-                            <h2 className="mt-3 text-2xl font-semibold text-slate-950">
+                            <h2 className="mt-3 text-3xl font-semibold text-slate-950">
                                 Built for permission-based workflows without feeling heavy.
                             </h2>
                             <p className="mt-4 text-sm leading-7 text-slate-600">

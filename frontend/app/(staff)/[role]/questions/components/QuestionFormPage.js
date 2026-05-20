@@ -28,7 +28,6 @@ import {
     useGetQuestionGroupQuery,
     useGetQuestionGroupsQuery,
 } from "@/redux/features/common/backend/questionGroupApi";
-import { useGetTestContextsQuery } from "@/redux/features/common/backend/testContextApi";
 
 const QUESTION_CATEGORIES = {
     OBJECTIVE: [
@@ -74,7 +73,6 @@ const QUESTION_CATEGORIES = {
 };
 
 const EMPTY_FORM = {
-    test_context_id: "",
     module_id: "",
     question_type_id: "",
     question_group_id: "",
@@ -206,14 +204,12 @@ export default function QuestionFormPage({ mode, questionId }) {
     const initialModuleIdFromParamsRef = useRef(searchParams.get("module_id")?.toString() || "");
     const initialQuestionTypeIdFromParamsRef = useRef(searchParams.get("question_type_id")?.toString() || "");
     const initialQuestionGroupIdFromParamsRef = useRef(searchParams.get("question_group_id")?.toString() || "");
-    const initialTestContextIdFromParamsRef = useRef(searchParams.get("test_context_id")?.toString() || "");
 
     const [formData, setFormData] = useState({
         ...EMPTY_FORM,
         module_id: initialModuleIdFromParamsRef.current,
         question_type_id: initialQuestionTypeIdFromParamsRef.current,
         question_group_id: initialQuestionGroupIdFromParamsRef.current,
-        test_context_id: initialTestContextIdFromParamsRef.current,
     });
     const [backendErrors, setBackendErrors] = useState({});
     const [formMessage, setFormMessage] = useState("");
@@ -230,15 +226,6 @@ export default function QuestionFormPage({ mode, questionId }) {
     const { data: fixedQuestionGroup } = useGetQuestionGroupQuery(initialQuestionGroupIdFromParamsRef.current, {
         skip: !initialQuestionGroupIdFromParamsRef.current,
     });
-
-    const derivedTestSectionId =
-        fixedQuestionGroup?.test_section_id ||
-        questionGroups?.find((group) => String(group.id) === String(formData.question_group_id))?.test_section_id ||
-        "";
-
-    const { data: testContexts, isLoading: isLoadingContexts } = useGetTestContextsQuery(
-        derivedTestSectionId ? { test_section_id: derivedTestSectionId } : {}
-    );
 
     const [createQuestion, { isLoading: isCreating }] = useCreateQuestionMutation();
     const [updateQuestion, { isLoading: isUpdating }] = useUpdateQuestionMutation();
@@ -278,9 +265,9 @@ export default function QuestionFormPage({ mode, questionId }) {
 
         setFormData((current) => ({
             ...current,
-            test_context_id: initialTestContextIdFromParamsRef.current || String(question.test_context_id || ""),
             module_id: initialModuleIdFromParamsRef.current || String(question.module_id || ""),
             question_type_id: initialQuestionTypeIdFromParamsRef.current || String(question.question_type_id || ""),
+            question_group_id: initialQuestionGroupIdFromParamsRef.current || String(question.question_group_id || ""),
             question_text: question.question_text || "",
             question_mark: question.question_mark || 1,
             sequence_number: question.sequence_number || 1,
@@ -348,23 +335,6 @@ export default function QuestionFormPage({ mode, questionId }) {
             };
         });
     }, [fixedQuestionGroup]);
-
-    useEffect(() => {
-        if (!testContexts?.length || !formData.test_context_id || initialTestContextIdFromParamsRef.current) {
-            return;
-        }
-
-        const hasSelectedContext = testContexts.some(
-            (context) => String(context.id) === String(formData.test_context_id)
-        );
-
-        if (!hasSelectedContext) {
-            setFormData((current) => ({
-                ...current,
-                test_context_id: "",
-            }));
-        }
-    }, [testContexts, formData.test_context_id]);
 
     function clearFieldError(fieldName) {
         if (!backendErrors[fieldName]) {
@@ -787,38 +757,6 @@ export default function QuestionFormPage({ mode, questionId }) {
                                             </option>
                                         ))}
                                     </select>
-                                </div>
-
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-slate-700">
-                                        Test Context
-                                    </label>
-                                    <div className="relative">
-                                        <Layers
-                                            size={18}
-                                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                                        />
-                                        <select
-                                            name="test_context_id"
-                                            value={formData.test_context_id}
-                                            onChange={(event) => updateField("test_context_id", event.target.value)}
-                                            required
-                                            disabled={isLoadingContexts || !!initialTestContextIdFromParamsRef.current}
-                                            className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-slate-900 outline-none transition focus:border-blue-500 disabled:opacity-50"
-                                        >
-                                            <option value="">Select a test context...</option>
-                                            {testContexts?.map((context) => (
-                                                <option key={context.id} value={String(context.id)}>
-                                                    {context.test_section?.title
-                                                        ? `${context.test_section.title} - Context #${context.id}`
-                                                        : `Context #${context.id}`}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    {backendErrors.test_context_id && (
-                                        <p className="mt-1 text-xs text-rose-500">{backendErrors.test_context_id[0]}</p>
-                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
