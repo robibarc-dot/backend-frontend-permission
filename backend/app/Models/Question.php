@@ -17,7 +17,7 @@ class Question extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'test_context_id',
+        'question_group_id',
         'module_id',
         'question_type_id',
         'question_text',

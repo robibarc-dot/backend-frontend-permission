@@ -61,7 +61,7 @@ function getNavItems(role) {
             icon: Settings,
             children: [
                 { label: "Modules", href: `${basePath}/modules`, icon: FileText, match: 'prefix', badge: "New" },
-                { label: "Question Types", href: `${basePath}/question-types`, icon: FileText, match: 'prefix', badge: "New" },
+                // { label: "Question Types", href: `${basePath}/question-types`, icon: FileText, match: 'prefix', badge: "New" },
             ]
         },
     ];
