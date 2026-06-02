@@ -4,13 +4,27 @@ import React from 'react';
 
 export default function HeroSection() {
   return (
-    <section className="relative w-full min-h-[calc(100vh-80px)] flex items-center bg-white py-16 md:py-24">
+    <section className="relative w-full h-screen h-[100dvh] min-h-[600px] flex items-center bg-white overflow-hidden sm:overflow-visible">
+      
+      {/* Background Image Wrapper */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/home/hero_bg.webp"
+          alt="Hero Background"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center lg:object-right"
+        />
+        {/* Subtle overlay to ensure text readability on the left */}
+        <div className="absolute inset-0 bg-white/20 lg:bg-transparent lg:bg-gradient-to-r lg:from-white/60 lg:to-transparent z-[1]" />
+      </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div className="grid grid-cols-12 gap-12 items-center">
             
             {/* Left Text Content Column */}
-            <div className="col-span-12 lg:col-span-7 flex flex-col items-start text-left space-y-6">
+            <div className="col-span-12 lg:col-span-8 flex flex-col items-start text-left space-y-6">
                 
                 {/* Top Pill Tag */}
                 <div className="inline-flex items-center bg-[#FFF0F5] border border-[#FFE0EB] text-[#FF007A] text-xs font-semibold px-3 py-1.5 rounded-full tracking-wide">
@@ -43,17 +57,10 @@ export default function HeroSection() {
                 </div>
             </div>
 
-            {/* Right Image Display Column */}
-            <div className="col-span-12 lg:col-span-5 relative w-full flex justify-center lg:justify-end self-end pt-12 lg:pt-0">
-                {/* Dark Graphic Arch/Curve in the background */}
-                <div className="absolute bottom-0 right-0 w-[110%] sm:w-[90%] lg:w-[130%] h-[75%] bg-[#081226] rounded-t-[100px] sm:rounded-t-[160px] lg:rounded-tl-[240px] lg:rounded-tr-none z-0 translate-y-6" />
-                f
-                </div>
-
             </div>
-
-            {/* Floating Features Strip Card */}
         </div>
+
+        {/* Floating Features Strip Card */}
         <div className="absolute bottom-0 left-0 right-0 transform translate-y-1/2 z-30">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 p-6 md:p-8">

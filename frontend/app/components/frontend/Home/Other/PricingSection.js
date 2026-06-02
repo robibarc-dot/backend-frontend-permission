@@ -84,7 +84,7 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="flex justify-center mb-12 sm:mb-16">
+        <div className="flex justify-center mb-12 sm:mb-16" id="feature-pricing">
           <div
             className="inline-grid grid-cols-2 gap-1 rounded-lg bg-white p-1.5 shadow-sm border border-gray-200/70"
             role="group"

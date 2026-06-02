@@ -31,7 +31,7 @@ const secondaryPosts = [
 
 export default function IeltsExpertBlog() {
   return (
-    <section className="w-full bg-white py-20 font-sans">
+    <section className="w-full bg-white py-20 font-sans" id="feature-ielts-expert-blog">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

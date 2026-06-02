@@ -28,32 +28,17 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-x-8 text-[15px] font-medium text-gray-600">
-                {/* Dropdown 1 */}
-                <div className="relative group cursor-pointer py-2 flex items-center gap-1 hover:text-gray-900 transition-colors">
-                <span>Mock Test</span>
-                <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-                </div>
-
-                {/* Dropdown 2 */}
-                <div className="relative group cursor-pointer py-2 flex items-center gap-1 hover:text-gray-900 transition-colors">
-                <span>Free Practice</span>
-                <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-                </div>
-
-                {/* Dropdown 3 */}
-                <div className="relative group cursor-pointer py-2 flex items-center gap-1 hover:text-gray-900 transition-colors">
-                <span>Study Resource</span>
-                <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-                </div>
-
-                <Link href="/pricing" className="hover:text-gray-900 transition-colors">Pricing</Link>
-                <Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link>
+                <Link href="/#feature-mock-test" className="hover:text-gray-900 transition-colors">
+                    Mock Test
+                </Link>
+                <Link href="/#feature-section-tests" className="hover:text-gray-900 transition-colors">
+                    Free Practice
+                </Link>
+                <Link href="/#feature-study-resources" className="hover:text-gray-900 transition-colors">
+                    Study Resource
+                </Link>
+                <Link href="/#feature-pricing" className="hover:text-gray-900 transition-colors">Pricing</Link>
+                <Link href="/blogs" className="hover:text-gray-900 transition-colors">Blog</Link>
             </nav>
 
             {/* Right Action Buttons */}
@@ -88,11 +73,11 @@ export default function Header() {
         {/* Mobile Menu Panel */}
         {isOpen && (
             <div className="md:hidden border-t border-gray-100 bg-white px-4 pt-2 pb-6 space-y-3 shadow-lg">
-            <Link href="/mock-test" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Mock Test</Link>
-            <Link href="/practice" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Free Practice</Link>
-            <Link href="/resources" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Study Resource</Link>
-            <Link href="/pricing" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Pricing</Link>
-            <Link href="/blog" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Blog</Link>
+            <Link href="/#feature-mock-test" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Mock Test</Link>
+            <Link href="/#feature-section-tests" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Free Practice</Link>
+            <Link href="/#feature-study-resources" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Study Resource</Link>
+            <Link href="/blogs" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Blog</Link>
+            <Link href="/#feature-pricing" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Pricing</Link>
             <div className="pt-4 border-t border-gray-100 flex flex-col gap-3 px-3">
                 <Link href="/login" onClick={() => setIsOpen(false)} className="text-center py-2 font-semibold text-gray-700 hover:bg-gray-50 rounded-lg">
                 Login

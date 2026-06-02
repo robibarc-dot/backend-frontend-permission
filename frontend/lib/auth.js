@@ -48,7 +48,7 @@ export function getPrimaryRole(user, roles = []) {
         return "teacher";
     }
 
-    if (roleNames.includes("student")) {
+    if (roleNames.includes("student") || roleNames.includes("user")) {
         return "student";
     }
 

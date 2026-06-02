@@ -20,7 +20,7 @@ import {
 } from '@/redux/features/common/backend/questionGroupApi';
 import { useGetTestSectionsQuery } from '@/redux/features/common/backend/testSectionApi';
 import { useGetQuestionTypesQuery } from '@/redux/features/common/backend/questionTypeApi';
-import { getPrimaryRole, getRoleHomePath } from '../../../../lib/auth';
+import { getPrimaryRole, getRoleHomePath } from '@/lib/auth';
 
 // Helper function to extract error messages from RTK Query errors
 function getRequestMessage(requestError, fallback) {

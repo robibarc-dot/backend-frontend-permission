@@ -18,7 +18,7 @@ const featuresData = [
     ],
     btnText: 'Explore Tests',
     btnHref: '/mock-test',
-    imageSrc: '/mock-test-preview.png',
+    imageSrc: '/images/home/mock_test.webp',
     bgColor: 'from-[#FF0055] to-[#FF3377]',
     accentText: 'text-[#FF007A]',
     accentBg: 'bg-[#FF007A]'
@@ -36,7 +36,7 @@ const featuresData = [
     ],
     btnText: 'Practice Sections',
     btnHref: '/free-practice',
-    imageSrc: '/section-test-preview.png',
+    imageSrc: '/images/home/practice.webp',
     bgColor: 'from-[#1E60FF] to-[#4A85FF]',
     accentText: 'text-[#1E60FF]',
     accentBg: 'bg-[#1E60FF]'
@@ -54,7 +54,7 @@ const featuresData = [
     ],
     btnText: 'Access Resources',
     btnHref: '/resources',
-    imageSrc: '/resources-preview.png',
+    imageSrc: '/images/home/study_resource.webp',
     bgColor: 'from-[#FF0055] to-[#FF3377]',
     accentText: 'text-[#FF007A]',
     accentBg: 'bg-[#FF007A]'
@@ -72,7 +72,7 @@ const featuresData = [
     ],
     btnText: 'View Dashboard',
     btnHref: '/dashboard',
-    imageSrc: '/tracking-preview.png',
+    imageSrc: '/images/home/progress_tracking.webp',
     bgColor: 'from-[#1E60FF] to-[#4A85FF]',
     accentText: 'text-[#1E60FF]',
     accentBg: 'bg-[#1E60FF]'
@@ -137,8 +137,8 @@ export default function WhyChooseUs() {
   }, []);
 
   return (
-    <section className="w-full bg-white py-12 md:py-24 mt-20 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-white py-12 md:py-24 font-sans bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
         
         {/* Title / Header Section */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
@@ -180,7 +180,7 @@ export default function WhyChooseUs() {
 
           {/* Right Stacked Feed (All contents rendering together) */}
           <div className="lg:col-span-9 w-full space-y-8 md:space-y-8">
-            {featuresData.map((item) => (
+            {featuresData.map((item, index) => (
               <div 
                 key={item.id}
                 id={`feature-${item.id}`}
@@ -189,7 +189,7 @@ export default function WhyChooseUs() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                   
                   {/* Content Left Column */}
-                  <div className="lg:col-span-6 space-y-6">
+                  <div className={`lg:col-span-6 space-y-6 ${index % 2 !== 0 ? 'lg:order-last' : ''}`}>
                     <h3 className="text-2xl sm:text-3xl font-bold text-[#1E293B] tracking-tight leading-snug">
                       {item.heading}
                     </h3>
@@ -221,7 +221,7 @@ export default function WhyChooseUs() {
                   </div>
 
                   {/* Content Right Screenshot Wrapper */}
-                  <div className="lg:col-span-6 flex justify-center w-full relative group-hover/card:scale-[1.02] transition-transform duration-700">
+                  <div className={`lg:col-span-6 flex justify-center w-full relative group-hover/card:scale-[1.02] transition-transform duration-700 ${index % 2 !== 0 ? 'lg:order-first' : ''}`}>
                     <div className="bg-white p-3 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100/80 w-full max-w-md lg:max-w-none">
                       <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gradient-to-br from-slate-50 to-gray-50 flex items-center justify-center border border-gray-100">
                         <Image

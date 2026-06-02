@@ -45,7 +45,7 @@ export default function ImproveBandScoreSection() {
                 
                 {/* Main Student Asset Representation */}
                 <Image
-                  src="/student-learning-headphones.png" // Replace with your image asset path
+                  src="/images/home/achieve_target.webp" // Replace with your image asset path
                   alt="Student achieving target IELTS band score"
                   fill
                   sizes="(max-width: 768px) 100vw, 500px"

@@ -97,6 +97,37 @@ export const loginUser = createAsyncThunk(
     }
 );
 
+export const registerUser = createAsyncThunk(
+    "auth/registerUser",
+    async (payload, { dispatch, rejectWithValue }) => {
+        try {
+            const registerResponse = await dispatch(
+                authApi.endpoints.usersAuthRegister.initiate(payload)
+            ).unwrap();
+
+            const token = registerResponse?.token;
+            persistToken(token);
+
+            const userResponse = await dispatch(
+                authApi.endpoints.getMe.initiate(undefined, {
+                    forceRefetch: true,
+                })
+            ).unwrap();
+
+            return {
+                ...registerResponse,
+                token,
+                user: userResponse,
+            };
+        } catch (error) {
+            clearStoredToken();
+            return rejectWithValue(
+                error?.data || { message: "Registration failed" }
+            );
+        }
+    }
+);
+
 export const logoutUser = createAsyncThunk(
     "auth/logoutUser",
     async (_, { dispatch }) => {
@@ -163,6 +194,30 @@ const authSlice = createSlice({
                     action.payload?.message ||
                     action.error?.message ||
                     "Login failed";
+            })
+            .addCase(registerUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(registerUser.fulfilled, (state, action) => {
+                const user = action.payload?.user || null;
+
+                state.loading = false;
+                state.token = action.payload?.token || null;
+                state.user = user;
+                state.roles = user?.roles || [];
+                state.permissions = user?.permissions || [];
+            })
+            .addCase(registerUser.rejected, (state, action) => {
+                state.loading = false;
+                state.token = null;
+                state.user = null;
+                state.roles = [];
+                state.permissions = [];
+                state.error =
+                    action.payload?.message ||
+                    action.error?.message ||
+                    "Registration failed";
             })
             .addCase(logoutUser.fulfilled, (state) => {
                 state.token = null;

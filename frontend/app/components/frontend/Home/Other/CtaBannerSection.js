@@ -11,7 +11,7 @@ export default function CtaBannerSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Banner Container with Pink Gradient Background */}
-        <div className="relative w-full rounded-[32px] bg-gradient-to-r from-[#E61B6B] via-[#E92275] to-[#EE358D] overflow-hidden min-h-[380px] lg:min-h-[420px] flex flex-col justify-center shadow-lg shadow-pink-100">
+        <div className="relative w-full rounded-[32px] bg-[#f03086] overflow-hidden min-h-[380px] lg:min-h-[420px] flex flex-col justify-center shadow-lg shadow-pink-100">
           
           {/* Decorative Background Circular Graphic */}
           <div className="absolute right-0 bottom-0 top-0 w-full lg:w-[50%] opacity-20 lg:opacity-100 pointer-events-none z-0">
@@ -45,7 +45,7 @@ export default function CtaBannerSection() {
             <div className="lg:col-span-5 relative w-full h-[240px] sm:h-[320px] lg:h-full min-h-[300px] lg:min-h-[460px] mt-4 lg:mt-0 flex items-end justify-center">
               <div className="absolute bottom-0 w-[290px] sm:w-[380px] lg:w-[450px] aspect-[1.12] lg:right-[-20px] xl:right-0">
                 <Image
-                  src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80" // Placeholder mapping representing collaborative study group teams
+                  src="/images/home/smart_score.webp" // Placeholder mapping representing collaborative study group teams
                   alt="IELTS Students"
                   fill
                   sizes="(max-width: 1024px) 380px, 450px"
