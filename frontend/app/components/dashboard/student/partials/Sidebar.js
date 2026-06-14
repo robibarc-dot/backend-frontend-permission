@@ -20,7 +20,7 @@ import {
 const mainNav = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "mock-tests", label: "Mock Tests", icon: ClipboardList, badge: "1 Free" },
-    { id: "practice", label: "Free Practice", icon: PenLine },
+    { id: "practice", label: "Practice", icon: PenLine },
     { id: "speaking", label: "Speaking Lab", icon: Mic, locked: true },
     { id: "writing", label: "Writing Lab", icon: FileText },
 ];
@@ -191,37 +191,37 @@ export default function StudentSidebar({
                     <NavGroup title="Learning" items={learningNav} activePage={activePage} isDark={isDark} onNavigate={onNavigate} />
                     <NavGroup title="My Progress" items={progressNav} activePage={activePage} isDark={isDark} onNavigate={onNavigate} />
                     <NavGroup title="Account" items={[{ id: "settings", label: "Settings", icon: Settings }]} activePage={activePage} isDark={isDark} onNavigate={onNavigate} />
-                </div>
 
-                <div className={cx("border-t p-2.5", isDark ? "border-white/10" : "border-black/10")}>
-                    <button
-                        type="button"
-                        onClick={onToggleTheme}
-                        className={cx(
-                            "mb-1 flex w-full items-center justify-between rounded-[10px] px-2.5 py-2 text-left text-[12.5px] font-semibold transition",
-                            isDark ? "text-slate-300 hover:bg-white/[0.08] hover:text-white" : "text-gray-600 hover:bg-gray-100"
-                        )}
-                    >
-                        <span className="flex items-center gap-2">
-                            <span className={cx("flex h-8 w-8 items-center justify-center rounded-lg border", isDark ? "border-white/10 bg-white/[0.06]" : "border-black/10 bg-gray-50")}>
-                                {isDark ? <Sun size={14} /> : <Moon size={14} />}
+                    <div className={cx("mt-2 border-t p-2.5", isDark ? "border-white/10" : "border-black/10")}>
+                        <button
+                            type="button"
+                            onClick={onToggleTheme}
+                            className={cx(
+                                "mb-1 flex w-full items-center justify-between rounded-[10px] px-2.5 py-2 text-left text-[12.5px] font-semibold transition",
+                                isDark ? "text-slate-300 hover:bg-white/[0.08] hover:text-white" : "text-gray-600 hover:bg-gray-100"
+                            )}
+                        >
+                            <span className="flex items-center gap-2">
+                                <span className={cx("flex h-8 w-8 items-center justify-center rounded-lg border", isDark ? "border-white/10 bg-white/[0.06]" : "border-black/10 bg-gray-50")}>
+                                    {isDark ? <Sun size={14} /> : <Moon size={14} />}
+                                </span>
+                                {isDark ? "Light Mode" : "Dark Mode"}
                             </span>
-                            {isDark ? "Light Mode" : "Dark Mode"}
-                        </span>
-                        <span className={`relative h-[21px] w-[38px] rounded-full transition ${isDark ? "bg-red-600" : "bg-gray-200"}`}>
-                            <span className={`absolute top-[3px] h-[15px] w-[15px] rounded-full bg-white shadow transition ${isDark ? "left-5" : "left-[3px]"}`} />
-                        </span>
-                    </button>
+                            <span className={`relative h-[21px] w-[38px] rounded-full transition ${isDark ? "bg-red-600" : "bg-gray-200"}`}>
+                                <span className={`absolute top-[3px] h-[15px] w-[15px] rounded-full bg-white shadow transition ${isDark ? "left-5" : "left-[3px]"}`} />
+                            </span>
+                        </button>
 
-                    <div className={cx("flex items-center gap-2.5 rounded-[10px] px-2.5 py-2 transition", isDark ? "hover:bg-white/[0.08]" : "hover:bg-gray-100")}>
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-red-600 to-red-400 font-['Sora',sans-serif] text-xs font-bold text-white">
-                            {initials}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                            <strong className={cx("block truncate text-[12.5px] font-bold", isDark ? "text-white" : "text-gray-950")}>{displayName}</strong>
-                            <span className={cx("block truncate text-[10.5px]", isDark ? "text-slate-500" : "text-gray-400")}>Target: Band 7.5</span>
-                        </span>
-                        <span className={cx("rounded-full border px-2 py-1 text-[9.5px] font-black", isDark ? "border-white/10 bg-white/[0.06] text-slate-400" : "border-black/10 bg-gray-50 text-gray-400")}>Free</span>
+                        <div className={cx("flex items-center gap-2.5 rounded-[10px] px-2.5 py-2 transition", isDark ? "hover:bg-white/[0.08]" : "hover:bg-gray-100")}>
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-red-600 to-red-400 font-['Sora',sans-serif] text-xs font-bold text-white">
+                                {initials}
+                            </span>
+                            <span className="min-w-0 flex-1">
+                                <strong className={cx("block truncate text-[12.5px] font-bold", isDark ? "text-white" : "text-gray-950")}>{displayName}</strong>
+                                <span className={cx("block truncate text-[10.5px]", isDark ? "text-slate-500" : "text-gray-400")}>Target: Band 7.5</span>
+                            </span>
+                            <span className={cx("rounded-full border px-2 py-1 text-[9.5px] font-black", isDark ? "border-white/10 bg-white/[0.06] text-slate-400" : "border-black/10 bg-gray-50 text-gray-400")}>Free</span>
+                        </div>
                     </div>
                 </div>
             </aside>

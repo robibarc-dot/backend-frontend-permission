@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-export default function MultipleChoose({ question = {}, value = [], onChange = () => {}, disabled = false }) {
+export default function MultipleChoice({ question = {}, value = [], onChange = () => {}, disabled = false }) {
     const options = question.options || [];
 
     const toggle = (opt) => {

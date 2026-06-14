@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "redux/features/practice-test/backend/practiceTestApi.js", "redux/features/practice-test/backend/practiceTestApi.js"  ],
+, "redux/features/practice-test/backend/practiceTestApi.js", "redux/features/practice-test/backend/practiceTestApi.js", "app/(public)/page.js", "next.config.js", "next.config.js"  ],
   "exclude": ["node_modules"]
 }

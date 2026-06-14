@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('practice_tests', function (Blueprint $table) {
             $table->id();
+            $table->enum('question_type', ['easy', 'medium', 'hard']);
             $table->string('title')->unique();
             $table->integer('duration_mins'); // Total time for the test
             $table->enum('category', ['academic', 'general']);

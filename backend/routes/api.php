@@ -19,6 +19,8 @@ use App\Http\Controllers\Api\Backend\Mock\{
     MockTestController,
     MockTestQuestionController
 };
+use App\Http\Controllers\Api\Frontend\Test\MockTestController as FrontendMockTestController;
+use App\Http\Controllers\Api\Frontend\Test\PracticeTestController as FrontendPracticeTestController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -29,6 +31,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'me']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::prefix('frontend/practice-tests')->controller(FrontendPracticeTestController::class)->group(function () {
+        Route::get('/', 'index')->name('frontend.practice-tests.index');
+        Route::get('/{identifier}', 'show')->name('frontend.practice-tests.show');
+        Route::post('/{identifier}/start', 'start')->name('frontend.practice-tests.start');
+        Route::get('/{identifier}/questions', 'questions')->name('frontend.practice-tests.questions');
+        Route::post('/{identifier}/submit', 'submit')->name('frontend.practice-tests.submit');
+        Route::get('/{identifier}/results', 'results')->name('frontend.practice-tests.results');
+    });
+
+    Route::prefix('frontend/mock-tests')->controller(FrontendMockTestController::class)->group(function () {
+        Route::get('/', 'index')->name('frontend.mock-tests.index');
+        Route::get('/{identifier}', 'show')->name('frontend.mock-tests.show');
+        Route::post('/{identifier}/start', 'start')->name('frontend.mock-tests.start');
+        Route::get('/{identifier}/questions', 'questions')->name('frontend.mock-tests.questions');
+        Route::post('/{identifier}/submit', 'submit')->name('frontend.mock-tests.submit');
+    });
 
     Route::middleware('permission:user.view')->group(function () {
         Route::get('/backend/users/meta', [UserController::class, 'meta']);

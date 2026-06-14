@@ -7,6 +7,7 @@ import { ChevronLeft, Clock, FilePlus2, Loader2, Save, Settings2 } from "lucide-
 import { useCreatePracticeTestMutation } from "@/redux/features/practice-test/backend/practiceTestApi";
 
 const initialForm = {
+    question_type: 'easy',
     title: "",
     slug: "",
     duration_mins: 60,
@@ -106,6 +107,32 @@ export default function CreatePracticeTestPage() {
 
                 <div className="rounded-[26px] border border-slate-200 bg-white p-8 shadow-sm space-y-8">
                     <div className="grid gap-6 md:grid-cols-2">
+                        <div>
+                            
+                            <label className="mb-2 block text-sm font-semibold text-slate-700">Question Type</label>
+                            <div className="grid gap-3 sm:grid-cols-3">
+                                {[
+                                    { value: "easy", label: "Easy" },
+                                    { value: "medium", label: "Medium" },
+                                    { value: "hard", label: "Hard" },
+                                ].map((type) => {
+                                    const isSelected = form.question_type === type.value;
+                                    return (
+                                        <label key={type.value} className={`flex cursor-pointer items-center justify-center rounded-2xl border py-3 transition-all duration-200 ${isSelected ? "border-blue-200 bg-blue-50/50 text-blue-700 font-bold" : "border-slate-100 bg-slate-50 text-slate-500"}`}>
+                                            <input
+                                                type="radio"
+                                                name="question_type"
+                                                className="hidden"
+                                                checked={isSelected}
+                                                onChange={() => updateField("question_type", type.value)}
+                                            />
+                                            <span className="text-sm">{type.label}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
                         <div>
                             <label className="mb-2 block text-sm font-semibold text-slate-700">Test Title</label>
                             <input

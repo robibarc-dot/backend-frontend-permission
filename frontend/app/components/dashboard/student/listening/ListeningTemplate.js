@@ -1,11 +1,11 @@
-// frontend/app/components/dashboard/student/listening/ListeningTemplate.js
+"use client";
+
 import QuestionRenderer from '../../common/QuestionRenderer';
-import AudioPlayer from '../../common/AudioPlayer'; // Assuming you have an audio component
+import AudioPlayer from '../../common/AudioPlayer';
 
 export default function ListeningTemplate({ audioUrl, questions, answers, onAnswerChange }) {
     return (
         <div className="max-w-4xl mx-auto space-y-8">
-            {/* Audio Section - Sticky at the top */}
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md p-6 rounded-3xl border border-slate-200 shadow-sm">
                 <AudioPlayer src={audioUrl} />
                 <p className="mt-2 text-sm text-slate-500 text-center italic">
@@ -13,7 +13,6 @@ export default function ListeningTemplate({ audioUrl, questions, answers, onAnsw
                 </p>
             </div>
 
-            {/* Question List */}
             <div className="space-y-10">
                 {questions.map((q, index) => (
                     <section key={q.id} className="bg-white p-6 rounded-[26px] border border-slate-100 shadow-sm">

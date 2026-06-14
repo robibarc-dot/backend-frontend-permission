@@ -11,6 +11,7 @@ class PracticeTest extends Model
      */
     protected $fillable = [
         'title',
+        'question_type',
         'duration_mins',
         'category',
         'type',
@@ -23,5 +24,14 @@ class PracticeTest extends Model
     public function practiceTestQuestions()
     {
         return $this->hasMany(PracticeTestQuestion::class);
+    }
+
+    /**
+     * Get the configured sections for this practice test.
+     */
+    public function testSections()
+    {
+        return $this->hasMany(TestSection::class, 'test_id')
+            ->where('test_type', 'practice');
     }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { Check, ShieldCheck, X } from "lucide-react";
 import { getPrimaryRole, getRoleHomePath, isStaffRole } from "../../../lib/auth";
@@ -13,7 +13,7 @@ import StudentSidebar from "../../components/dashboard/student/partials/Sidebar"
 const pageTitles = {
     dashboard: "Dashboard",
     "mock-tests": "Mock Tests",
-    practice: "Free Practice",
+    practice: "Practice",
     speaking: "Speaking Lab",
     writing: "Writing Lab",
     resources: "Study Resources",
@@ -24,6 +24,29 @@ const pageTitles = {
     results: "My Results",
     settings: "Settings",
 };
+
+const pageRoutes = {
+    dashboard: "/student",
+    "mock-tests": "/student/mock-tests",
+    practice: "/student/practice",
+    speaking: "/student/speaking",
+    writing: "/student/writing",
+    resources: "/student/resources",
+    vocabulary: "/student/vocabulary",
+    blog: "/student/blog",
+    analytics: "/student/analytics",
+    pricing: "/student/pricing",
+    results: "/student/results",
+    settings: "/student/settings",
+};
+
+function getActivePage(pathname) {
+    const entry = Object.entries(pageRoutes)
+        .filter(([, route]) => pathname === route || pathname.startsWith(`${route}/`))
+        .sort(([, left], [, right]) => right.length - left.length)[0];
+
+    return entry?.[0] || "dashboard";
+}
 
 function ShellButton({ children, variant = "amber", className = "", ...props }) {
     const styles = {
@@ -108,19 +131,25 @@ function UpgradeModal({ open, onClose, isDark }) {
 
 export default function StudentLayout({ children }) {
     const router = useRouter();
+    const pathname = usePathname();
     const { token, user, roles } = useSelector((state) => state.auth);
-    const [activePage, setActivePage] = useState("dashboard");
+    const [hasMounted, setHasMounted] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [upgradeOpen, setUpgradeOpen] = useState(false);
     const [isDark, setIsDark] = useState(false);
 
     const { isLoading, isFetching } = useGetMeQuery(undefined, {
-        skip: !token || Boolean(user),
+        skip: !hasMounted || !token || Boolean(user),
     });
 
     const primaryRole = getPrimaryRole(user, roles);
     const isResolvingUser = token && !user && (isLoading || isFetching);
+    const activePage = getActivePage(pathname);
     const pageTitle = pageTitles[activePage] || "Dashboard";
+
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
 
     useEffect(() => {
         if (!token || isResolvingUser || !primaryRole) {
@@ -139,25 +168,12 @@ export default function StudentLayout({ children }) {
         return () => window.removeEventListener("student:open-upgrade", openUpgrade);
     }, []);
 
-    useEffect(() => {
-        const syncActivePageFromUrl = () => {
-            const tab = new URLSearchParams(window.location.search).get("tab");
-            setActivePage(tab || "dashboard");
-        };
-
-        syncActivePageFromUrl();
-        window.addEventListener("popstate", syncActivePageFromUrl);
-
-        return () => window.removeEventListener("popstate", syncActivePageFromUrl);
-    }, []);
-
     const navigate = (page) => {
-        setActivePage(page);
-        router.push(page === "dashboard" ? "/student" : `/student?tab=${page}`);
+        router.push(pageRoutes[page] || "/student");
         setSidebarOpen(false);
     };
 
-    if (isResolvingUser) {
+    if (!hasMounted || isResolvingUser) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#f4f6fa] px-4">
                 <div className="rounded-2xl border border-black/10 bg-white px-6 py-5 text-center shadow-sm">

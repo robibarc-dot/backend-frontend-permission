@@ -38,6 +38,7 @@ class PracticeTestController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
+                'question_type' => 'required|in:easy,medium,hard',
                 'title' => 'required|string|max:255|unique:practice_tests,title',
                 'duration_mins' => 'required|integer|min:1',
                 'category' => 'required|in:academic,general',
@@ -98,6 +99,7 @@ class PracticeTestController extends Controller
             $practiceTest = PracticeTest::findOrFail($id);
 
             $validator = Validator::make($request->all(), [
+                'question_type' => 'sometimes|required|in:easy,medium,hard',
                 'title' => [
                     'sometimes',
                     'required',

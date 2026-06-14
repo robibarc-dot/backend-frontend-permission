@@ -47,6 +47,7 @@ export default function PracticeTestsListPage() {
     })) || [];
 
     const filterConfigs = [
+
         { key: "title", label: "Title", type: "text", placeholder: "Search practice tests..." },
         {
             key: "category",
@@ -58,12 +59,13 @@ export default function PracticeTestsListPage() {
             ],
         },
         {
-            key: "type",
-            label: "Type",
+            key: "question_type",
+            label: "Question Type",
             type: "select",
             options: [
-                { label: "Free", value: "free" },
-                { label: "Paid", value: "paid" },
+                { label: "Easy", value: "easy" },
+                { label: "Medium", value: "medium" },
+                { label: "Hard", value: "hard" },
             ],
         },
     ];
@@ -107,8 +109,8 @@ export default function PracticeTestsListPage() {
             ),
         },
         {
-            header: "Type",
-            key: "type",
+            header: "Question Type",
+            key: "question_type",
             sortable: true,
             render: (item) => (
                 <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase border ${
@@ -116,7 +118,7 @@ export default function PracticeTestsListPage() {
                         ? "bg-amber-50 text-amber-700 border-amber-100"
                         : "bg-slate-50 text-slate-600 border-slate-200"
                 }`}>
-                    {item.type}
+                    {item.question_type}
                 </span>
             ),
         },

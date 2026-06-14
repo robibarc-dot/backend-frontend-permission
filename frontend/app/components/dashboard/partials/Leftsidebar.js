@@ -123,149 +123,151 @@ export default function Leftsidebar({ params, isOpen, onClose }) {
             />
 
             <aside
-                className={`fixed inset-y-0 left-0 z-40 flex w-[300px] max-w-[calc(100vw-2rem)] flex-col border-r border-slate-200 bg-white px-6 py-6 shadow-2xl transition-transform duration-300 lg:sticky lg:top-0 lg:z-10 lg:h-screen lg:translate-x-0 lg:shadow-none ${
+                className={`fixed inset-y-0 left-0 z-40 flex w-[300px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden border-r border-slate-200 bg-white shadow-2xl transition-transform duration-300 lg:sticky lg:top-0 lg:z-10 lg:h-screen lg:translate-x-0 lg:shadow-none ${
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 }`}
             >
-                {/* Branding Section */}
-                <div className="mb-10 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-200">
-                            <Link href={`/${role}`}>
-                                <GraduationCap size={22} />
-                            </Link>
+                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 [scrollbar-width:thin] [scrollbar-color:#cbd5e1_transparent]">
+                    {/* Branding Section */}
+                    <div className="mb-10 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-200">
+                                <Link href={`/${role}`}>
+                                    <GraduationCap size={22} />
+                                </Link>
+                            </div>
+                            <div>
+                                <h1 className="text-sm font-bold leading-tight text-slate-900">
+                                    Kids English
+                                </h1>
+                                <p className="text-[11px] text-slate-400">{roleLabel} Portal</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-sm font-bold leading-tight text-slate-900">
-                                Kids English
-                            </h1>
-                            <p className="text-[11px] text-slate-400">{roleLabel} Portal</p>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 transition hover:text-slate-800 lg:hidden"
+                            aria-label="Close navigation"
+                        >
+                            <X size={18} />
+                        </button>
                     </div>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 transition hover:text-slate-800 lg:hidden"
-                        aria-label="Close navigation"
-                    >
-                        <X size={18} />
-                    </button>
-                </div>
 
-                {/* Navigation Section */}
-                <nav className="flex-1 space-y-1.5 overflow-y-auto pr-2">
-                    {navItems.map((item) => {
-                        const { label, href, icon: Icon, badge, match, children } = item;
+                    {/* Navigation Section */}
+                    <nav className="space-y-1.5">
+                        {navItems.map((item) => {
+                            const { label, href, icon: Icon, badge, match, children } = item;
 
-                        if (children) {
-                            const isMenuOpen = !!openMenus[label];
-                            const hasActiveChild = children.some(child => 
-                                child.href && (child.match === 'prefix' 
-                                    ? pathname === child.href || pathname.startsWith(`${child.href}/`)
-                                    : pathname === child.href)
-                            );
+                            if (children) {
+                                const isMenuOpen = !!openMenus[label];
+                                const hasActiveChild = children.some(child => 
+                                    child.href && (child.match === 'prefix' 
+                                        ? pathname === child.href || pathname.startsWith(`${child.href}/`)
+                                        : pathname === child.href)
+                                );
+
+                                return (
+                                    <div key={label} className="space-y-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleMenu(label)}
+                                            className={`group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                                                hasActiveChild
+                                                    ? "bg-blue-50/50 text-blue-600"
+                                                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                                            }`}
+                                        >
+                                            <Icon size={18} />
+                                            <span className="flex-1 text-left">{label}</span>
+                                            <ChevronDown size={16} className={`transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""}`} />
+                                        </button>
+                                        
+                                        {isMenuOpen && (
+                                            <div className="ml-6 space-y-1 border-l border-slate-100 pl-4">
+                                                {children.map((child) => {
+                                                    const isChildActive = child.href 
+                                                        ? child.match === 'prefix'
+                                                            ? pathname === child.href || pathname.startsWith(`${child.href}/`)
+                                                            : pathname === child.href
+                                                        : false;
+                                                    
+                                                    const ChildIcon = child.icon;
+
+                                                    return (
+                                                        <Link
+                                                            key={child.label}
+                                                            href={child.href}
+                                                            onClick={onClose}
+                                                            className={`group flex items-center gap-3 rounded-xl px-4 py-2 text-xs font-medium transition ${
+                                                                isChildActive
+                                                                    ? "text-blue-600 font-semibold"
+                                                                    : "text-slate-500 hover:text-slate-800"
+                                                            }`}
+                                                        >
+                                                            {ChildIcon && <ChildIcon size={14} />}
+                                                            <span>{child.label}</span>
+                                                            {child.badge && (
+                                                                <span className={`ml-auto rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
+                                                                    isChildActive ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
+                                                                }`}>
+                                                                    {child.badge}
+                                                                </span>
+                                                            )}
+                                                        </Link>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            }
+
+                            const isActive = href
+                                ? match === 'prefix'
+                                    ? pathname === href || pathname.startsWith(`${href}/`)
+                                    : pathname === href
+                                : false;
 
                             return (
-                                <div key={label} className="space-y-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => toggleMenu(label)}
-                                        className={`group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
-                                            hasActiveChild
-                                                ? "bg-blue-50/50 text-blue-600"
-                                                : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                                        }`}
-                                    >
-                                        <Icon size={18} />
-                                        <span className="flex-1 text-left">{label}</span>
-                                        <ChevronDown size={16} className={`transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""}`} />
-                                    </button>
-                                    
-                                    {isMenuOpen && (
-                                        <div className="ml-6 space-y-1 border-l border-slate-100 pl-4">
-                                            {children.map((child) => {
-                                                const isChildActive = child.href 
-                                                    ? child.match === 'prefix'
-                                                        ? pathname === child.href || pathname.startsWith(`${child.href}/`)
-                                                        : pathname === child.href
-                                                    : false;
-                                                
-                                                const ChildIcon = child.icon;
-
-                                                return (
-                                                    <Link
-                                                        key={child.label}
-                                                        href={child.href}
-                                                        onClick={onClose}
-                                                        className={`group flex items-center gap-3 rounded-xl px-4 py-2 text-xs font-medium transition ${
-                                                            isChildActive
-                                                                ? "text-blue-600 font-semibold"
-                                                                : "text-slate-500 hover:text-slate-800"
-                                                        }`}
-                                                    >
-                                                        {ChildIcon && <ChildIcon size={14} />}
-                                                        <span>{child.label}</span>
-                                                        {child.badge && (
-                                                            <span className={`ml-auto rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
-                                                                isChildActive ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
-                                                            }`}>
-                                                                {child.badge}
-                                                            </span>
-                                                        )}
-                                                    </Link>
-                                                );
-                                            })}
-                                        </div>
+                                <Link
+                                    key={label}
+                                    href={href}
+                                    onClick={onClose}
+                                    className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                                        isActive
+                                            ? "bg-blue-50 text-blue-600 shadow-sm"
+                                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                                    }`}
+                                >
+                                    <Icon size={18} />
+                                    <span>{label}</span>
+                                    {badge && (
+                                        <span
+                                            className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                                                isActive
+                                                    ? "bg-blue-100 text-blue-700"
+                                                    : "bg-slate-100 text-slate-500"
+                                            }`}
+                                        >
+                                            {badge}
+                                        </span>
                                     )}
-                                </div>
+                                </Link>
                             );
-                        }
+                        })}
+                    </nav>
 
-                        const isActive = href
-                            ? match === 'prefix'
-                                ? pathname === href || pathname.startsWith(`${href}/`)
-                                : pathname === href
-                            : false;
-
-                        return (
-                            <Link
-                                key={label}
-                                href={href}
-                                onClick={onClose}
-                                className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
-                                    isActive
-                                        ? "bg-blue-50 text-blue-600 shadow-sm"
-                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                                }`}
-                            >
-                                <Icon size={18} />
-                                <span>{label}</span>
-                                {badge && (
-                                    <span
-                                        className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                                            isActive
-                                                ? "bg-blue-100 text-blue-700"
-                                                : "bg-slate-100 text-slate-500"
-                                        }`}
-                                    >
-                                        {badge}
-                                    </span>
-                                )}
-                            </Link>
-                        );
-                    })}
-                </nav>
-
-                {/* Footer Section */}
-                <div className="mt-8 border-t border-slate-100 pt-6">
-                    <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-rose-500 transition hover:bg-rose-50"
-                    >
-                        <LogOut size={18} />
-                        <span>Logout</span>
-                    </button>
+                    {/* Footer Section */}
+                    <div className="mt-8 border-t border-slate-100 pt-6">
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-rose-500 transition hover:bg-rose-50"
+                        >
+                            <LogOut size={18} />
+                            <span>Logout</span>
+                        </button>
+                    </div>
                 </div>
             </aside>
         </>
