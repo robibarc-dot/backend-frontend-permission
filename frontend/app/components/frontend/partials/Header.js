@@ -31,7 +31,7 @@ export default function Header() {
                 <Link href="/#feature-mock-test" className="hover:text-gray-900 transition-colors">
                     Mock Test
                 </Link>
-                <Link href="/#feature-section-tests" className="hover:text-gray-900 transition-colors">
+                <Link href="/practice-test" className="hover:text-gray-900 transition-colors">
                     Free Practice
                 </Link>
                 <Link href="/#feature-study-resources" className="hover:text-gray-900 transition-colors">

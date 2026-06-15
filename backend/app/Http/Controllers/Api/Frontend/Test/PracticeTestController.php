@@ -30,10 +30,9 @@ class PracticeTestController extends Controller
                 ->latest();
 
 
-
-            if ($request->filled('category')) {
-                $query->where('category', $request->category);
-            }
+            // if ($request->filled('category')) {
+            //     $query->where('category', $request->category);
+            // }
 
             if ($request->filled('question_type')) {
                 $query->where('question_type', $request->question_type);
@@ -70,7 +69,6 @@ class PracticeTestController extends Controller
                     ->map(fn (PracticeTest $practiceTest) => $this->buildPracticeTestListPayload($practiceTest))
                     ->values();
             }
-
 
             return response()->json([
                 'status' => 'success',
