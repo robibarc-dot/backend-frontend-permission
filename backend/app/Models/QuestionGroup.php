@@ -37,4 +37,8 @@ class QuestionGroup extends Model
     {
         return $this->belongsTo(QuestionType::class);
     }
+
+    public function questions(){
+        return $this->hasMany(Question::class);
+    }
 }

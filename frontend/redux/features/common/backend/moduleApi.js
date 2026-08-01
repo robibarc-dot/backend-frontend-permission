@@ -4,7 +4,7 @@ const unwrapData = (response) => response?.data ?? response;
 
 export const moduleApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getModules: builder.query({
+        getBackendModules: builder.query({
             query: (params) => ({
                 url: 'module',
                 params: params || {},
@@ -68,7 +68,7 @@ export const moduleApi = apiSlice.injectEndpoints({
 });
 
 export const {
-    useGetModulesQuery,
+    useGetBackendModulesQuery: useGetModulesQuery,
     useGetModuleCreateMetadataQuery,
     useGetModuleQuery,
     useCreateModuleMutation,

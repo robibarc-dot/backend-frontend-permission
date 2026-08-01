@@ -37,16 +37,6 @@ class Question extends Model
     }
 
     /**
-     * Get the test context that owns the question.
-     * 
-     * @return BelongsTo
-     */
-    public function testContext(): BelongsTo
-    {
-        return $this->belongsTo(TestContext::class);
-    }
-
-    /**
      * Get the module that owns the question.
      * 
      * @return BelongsTo

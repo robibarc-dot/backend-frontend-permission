@@ -42,6 +42,7 @@ export default function PracticeTestDetailPage() {
     const [startPracticeTest, { isLoading: isStarting }] = useStartPracticeTestMutation();
 
     const testDetails = data?.data;
+    console.log(testDetails);
     const sectionCount = testDetails?.sections?.length || 0;
     const selectedSection = useMemo(() => {
         if (!testDetails?.sections?.length) return null;
@@ -135,7 +136,7 @@ export default function PracticeTestDetailPage() {
                                     >
                                         <p className="font-bold text-slate-800 dark:text-white">{section.title || section.module?.title || 'Practice'}</p>
                                         <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                            {section.module?.title || 'General'} / {section.total_questions || section.questions?.length || 0} questions
+                                            {section.module?.title || 'General'} / {testDetails.total_questions || section.total_questions || section.questions?.length || 0} questions
                                         </p>
                                     </Link>
                                 ))}

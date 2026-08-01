@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('questions', function (Blueprint $table) {
-            $table->id();
+            $table->id();            
+            $table->unsignedBigInteger('question_group_id')->nullable();
             $table->unsignedBigInteger('test_context_id');
             $table->unsignedBigInteger('module_id');
             $table->unsignedBigInteger('question_type_id');

@@ -16,11 +16,14 @@ import {
     GraduationCap, 
     LogOut, 
     X,
-    ChevronDown
+    ChevronDown,
+    LayoutGrid,
+    FolderOpen,
+    Newspaper
 } from "lucide-react";
 
 function getNavItems(role) {
-    const basePath = `/${role}`;
+    const basePath = `/${role}`; 
 
     if (role === "teacher") {
         return [
@@ -43,6 +46,13 @@ function getNavItems(role) {
             ]
         },
         {
+            label: "Course Management",
+            icon: GraduationCap, // Standard icon for courses/education
+            children: [
+                { label: "All Courses", href: `${basePath}/courses`, icon: BookOpen, match: 'prefix' },
+            ]
+        },
+        {
             label: "Mock Management",
             icon: GraduationCap,
             children: [
@@ -50,10 +60,17 @@ function getNavItems(role) {
             ]
         },
         {
-            label: "Practice Management",
-            icon: BookOpen,
+            label: "Resource Management",
+            icon: FolderOpen,
             children: [
-                { label: "Practice Tests", href: `${basePath}/practice-tests`, icon: FileText, match: 'prefix', badge: "New" },
+                { label: "Resources", href: `${basePath}/resources`, icon: FolderOpen, match: 'prefix', badge: "New" },
+            ]
+        },
+        {
+            label: "Blog Management",
+            icon: Newspaper,
+            children: [
+                { label: "Blogs", href: `${basePath}/blogs`, icon: FolderOpen, match: 'prefix', badge: "New" },
             ]
         },
         {

@@ -16,7 +16,7 @@ class QuestionController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Question::with(['options', 'module', 'questionType', 'testContext']);
+            $query = Question::with(['options', 'module', 'questionType']);
 
             if ($request->filled('test_context_id')) {
                 $query->where('test_context_id', $request->test_context_id);
@@ -49,9 +49,9 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'test_context_id' => 'required|exists:test_contexts,id',
             'module_id' => 'required|exists:modules,id',
             'question_type_id' => 'required|exists:question_types,id',
+            'question_group_id' => 'nullable|exists:question_groups,id',
             'question_text' => 'required|string',
             'question_mark' => 'required|integer|min:1',
             'sequence_number' => 'nullable|integer|min:1',
@@ -70,7 +70,7 @@ class QuestionController extends Controller
         try {
             $question = DB::transaction(function () use ($request) {
                 $question = Question::create($request->only([
-                    'test_context_id', 'module_id', 'question_type_id', 
+                    'module_id', 'question_type_id', 'question_group_id',
                     'question_text', 'question_mark', 'sequence_number', 'status'
                 ]));
 
@@ -115,6 +115,7 @@ class QuestionController extends Controller
                 'test_context_id' => 'sometimes|required|exists:test_contexts,id',
                 'module_id' => 'sometimes|required|exists:modules,id',
                 'question_type_id' => 'sometimes|required|exists:question_types,id',
+                'question_group_id' => 'nullable|exists:question_groups,id',
                 'question_text' => 'sometimes|required|string',
                 'question_mark' => 'sometimes|required|integer|min:1',
                 'sequence_number' => 'sometimes|required|integer|min:1',
@@ -132,7 +133,7 @@ class QuestionController extends Controller
 
             DB::transaction(function () use ($request, $question) {
                 $question->update($request->only([
-                    'test_context_id', 'module_id', 'question_type_id', 
+                    'test_context_id', 'module_id', 'question_type_id', 'question_group_id',
                     'question_text', 'question_mark', 'sequence_number', 'status'
                 ]));
 

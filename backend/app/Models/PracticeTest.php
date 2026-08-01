@@ -28,6 +28,9 @@ class PracticeTest extends Model
 
     /**
      * Get the configured sections for this practice test.
+     *
+     * Uses hasMany with test_type filter because the test_sections table
+     * stores test_type as 'practice' / 'mock' (not FQCN for morph).
      */
     public function testSections()
     {

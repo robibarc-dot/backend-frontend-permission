@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import {
   Headphones,
   BookOpen,
@@ -18,8 +19,8 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
-import { useGetPracticeTestsQuery } from "../../../redux/features/practice-test/frontend/practiceTestApis";
-import { useGetModulesQuery } from "../../../redux/features/common/frontend/commonApis";
+import { useGetPracticeTestsQuery } from "../../../../redux/features/practice-test/frontend/practiceTestApis";
+import { useGetModulesQuery } from "../../../../redux/features/common/frontend/commonApis";
 
 const iconMap = {
   listening: Headphones,
@@ -32,6 +33,13 @@ const iconMap = {
 
 function normalize(value) {
   return String(value || "").toLowerCase();
+}
+
+function slugify(value) {
+  return normalize(value)
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function formatLabel(value, fallback = "General") {
@@ -98,16 +106,37 @@ function getPracticeTestsFromResponse(data) {
   return [];
 }
 
+function getModulesFromResponse(data) {
+  const payload = data?.data;
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+  if (Array.isArray(payload?.data)) {
+    return payload.data;
+  }
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return [];
+}
+
+function getMetaFromResponse(data) {
+  const payload = data?.data;
+  return payload && !Array.isArray(payload) ? payload : {};
+}
+
 // Component for displaying practice tests
 const PracticeTestPage = () => {
-  const [activeTab, setActiveTab] = useState("reading");
+  const params = useParams();
+  const router = useRouter();
+  const routeModuleId = decodeURIComponent(params?.module_id || "");
+  const [activeTab, setActiveTab] = useState(routeModuleId);
 
   const [filters, setFilters] = useState({
-    category: "reading",
     question_type: "",
     type: "",
     search: "",
-    module_id: "",
+    module_id: routeModuleId,
     per_page: 10,
     page: 1,
     paginate: true,
@@ -126,21 +155,44 @@ const PracticeTestPage = () => {
   const { data: modulesResponse } = useGetModulesQuery();
 
   const tabs = useMemo(() => {
-    const modules = modulesResponse?.data || (Array.isArray(modulesResponse) ? modulesResponse : []);
+    const modules = getModulesFromResponse(modulesResponse);
     return modules.map((m) => ({
-      id: m.slug || String(m.id),
+      id: String(m.id),
       moduleId: m.id,
-      label: m.title,
-      icon: iconMap[m.slug?.toLowerCase()] || Book,
+      slug: m.slug || slugify(m.title),
+      label: m.title || m.name || "Module",
+      href: `/practice-test/${m.id}`,
+      icon: iconMap[slugify(m.slug || m.title || m.name)] || Book,
     }));
   }, [modulesResponse]);
+
+  const selectedTab = useMemo(() => {
+    if (!tabs.length) return null;
+
+    return (
+      tabs.find((tab) => String(tab.moduleId) === String(routeModuleId)) ||
+      tabs.find((tab) => tab.slug === slugify(routeModuleId)) ||
+      tabs[0]
+    );
+  }, [tabs, routeModuleId]);
+
+  useEffect(() => {
+    if (!selectedTab) return;
+
+    setActiveTab(selectedTab.id);
+    setFilters((prev) => ({
+      ...prev,
+      module_id: selectedTab.moduleId,
+      page: String(prev.module_id) === String(selectedTab.moduleId) ? prev.page : 1,
+    }));
+  }, [selectedTab]);
 
   // Fetch practice tests using RTK Query
   const { data, isLoading, isError } =
     useGetPracticeTestsQuery(filters);
 
   const practiceTests = useMemo(() => getPracticeTestsFromResponse(data), [data]);
-  const meta = data?.meta || {};
+  const meta = useMemo(() => getMetaFromResponse(data), [data]);
 
   const moduleGroups = useMemo(() => buildModuleGroups(practiceTests), [practiceTests]);
 
@@ -170,14 +222,16 @@ const PracticeTestPage = () => {
 
   // Handle tab change
   const handleTabChange = (tabId) => {
-    setActiveTab(tabId);
-    const selectedModule = tabs.find(t => t.id === tabId);
+    const selectedModule = tabs.find((t) => t.id === tabId);
+    if (!selectedModule) return;
+
+    setActiveTab(selectedModule.id);
     setFilters((prev) => ({
       ...prev,
-      category: tabId,
-      module_id: selectedModule?.moduleId || "",
+      module_id: selectedModule.moduleId,
       page: 1,
     }));
+    router.push(selectedModule.href);
   };
 
   // Handle question type change

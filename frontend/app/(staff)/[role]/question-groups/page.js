@@ -119,7 +119,7 @@ export default function QuestionGroupsListPage() {
                     <Link href={`/${resolvedRole}/questions?module_id=${moduleId}&question_group_id=${item.id}&question_type_id=${item.question_type_id}}`}
                         className="p-2 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors inline-block"
                         title="`Manage Question Groups"
-                    >
+                    > 
                         <Layers size={18} />
                     </Link>
                     <Link

@@ -2,7 +2,12 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Backend\PermissionController;
 use App\Http\Controllers\Api\Backend\RoleController;
-use App\Http\Controllers\Api\Backend\UserController;
+use App\Http\Controllers\Api\Backend\{
+    UserController,
+    ResourceController,
+    BlogController,
+    CourseController
+};
 use App\Http\Controllers\Api\Backend\Common\{
     ModuleController,
     TestContextController,
@@ -21,7 +26,12 @@ use App\Http\Controllers\Api\Backend\Mock\{
 };
 use App\Http\Controllers\Api\Frontend\Test\MockTestController as FrontendMockTestController;
 use App\Http\Controllers\Api\Frontend\Test\PracticeTestController as FrontendPracticeTestController;
-use App\Http\Controllers\Api\Frontend\CommonController;
+use App\Http\Controllers\Api\Frontend\{
+    CommonController,
+    FrontendResourceController,
+    FrontendBlogController,
+    FrontendCourseController
+};
 use Illuminate\Support\Facades\Route;
 
 
@@ -29,14 +39,43 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/login', [AuthController::class, 'login']);
 
+// Public frontend routes - no auth required
+Route::prefix('frontend/practice-tests')->controller(FrontendPracticeTestController::class)->group(function () {
+    Route::get('/', 'index')->name('frontend.practice-tests.index');
+    Route::get('/{identifier}', 'show')->name('frontend.practice-tests.show');
+});
+
+Route::prefix('frontend/mock-tests')->controller(FrontendMockTestController::class)->group(function () {
+    Route::get('/', 'index')->name('frontend.mock-tests.index');
+    Route::get('/{identifier}', 'show')->name('frontend.mock-tests.show');
+});
+Route::prefix('frontend/resources')->controller(FrontendResourceController::class)->group(function () {
+    Route::get('/', 'index')->name('frontend.resources.index');
+    Route::get('/{identifier}', 'show')->name('frontend.resources.detail');
+});
+
+Route::prefix('frontend/blogs')->controller(FrontendBlogController::class)->group(function () {
+    Route::get('/', 'index')->name('frontend.blogs.index');
+    Route::get('/{id}', 'show')->name('frontend.blogs.detail');
+});
+
+Route::prefix('frontend/courses')->controller(FrontendCourseController::class)->group(function () {
+    Route::get('/', 'index')->name('frontend.courses.index');
+    Route::get('/{identifier}', 'show')->name('frontend.courses.detail');
+});
+
+// common apis
+Route::prefix('frontend')->group(function () {
+    Route::get('get-modules', [CommonController::class, 'getModules']);
+});
+
+// Auth required routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'me']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::prefix('frontend/practice-tests')->controller(FrontendPracticeTestController::class)->group(function () {
-        Route::get('/', 'index')->name('frontend.practice-tests.index');
-        Route::get('/{identifier}', 'show')->name('frontend.practice-tests.show');
         Route::post('/{identifier}/start', 'start')->name('frontend.practice-tests.start');
         Route::get('/{identifier}/questions', 'questions')->name('frontend.practice-tests.questions');
         Route::post('/{identifier}/submit', 'submit')->name('frontend.practice-tests.submit');
@@ -44,8 +83,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('frontend/mock-tests')->controller(FrontendMockTestController::class)->group(function () {
-        Route::get('/', 'index')->name('frontend.mock-tests.index');
-        Route::get('/{identifier}', 'show')->name('frontend.mock-tests.show');
         Route::post('/{identifier}/start', 'start')->name('frontend.mock-tests.start');
         Route::get('/{identifier}/questions', 'questions')->name('frontend.mock-tests.questions');
         Route::post('/{identifier}/submit', 'submit')->name('frontend.mock-tests.submit');
@@ -179,6 +216,33 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('/destroy/{id}', 'destroy')->name('question.delete');
         });
 
+        Route::prefix('resource')->controller(ResourceController::class)->group(function () {
+            Route::get('/', 'index')->name('resource.index');
+            Route::get('/create', 'create')->name('resource.create');
+            Route::post('/store', 'store')->name('resource.store');
+            Route::get('/show/{id}', 'show')->name('resource.edit');
+            Route::put('/update/{id}', 'update')->name('resource.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('resource.delete');
+        });
+
+        Route::prefix('blog')->controller(BlogController::class)->group(function () {
+            Route::get('/', 'index')->name('blog.index');
+            Route::get('/create', 'create')->name('blog.create');
+            Route::post('/store', 'store')->name('blog.store');
+            Route::get('/show/{id}', 'show')->name('blog.edit');
+            Route::put('/update/{id}', 'update')->name('blog.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('blog.delete');
+        });
+
+        Route::prefix('course')->controller(CourseController::class)->group(function () {
+            Route::get('/', 'index')->name('course.index');
+            Route::get('/create', 'create')->name('course.create');
+            Route::post('/store', 'store')->name('course.store');
+            Route::get('/show/{id}', 'show')->name('course.edit');
+            Route::put('/update/{id}', 'update')->name('course.update');
+            Route::delete('/destroy/{id}', 'destroy')->name('course.delete');
+        });
+
     });
 
     Route::middleware('permission:student.create')->group(function () {
@@ -192,12 +256,3 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
 });
-
-
-// common apis
-Route::prefix('frontend')->group(function () {
-    Route::get('get-modules', [CommonController::class, 'getModules']);
-});
-
-
-

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Frontend\Test;
 
 use App\Http\Controllers\Controller;
 use App\Models\PracticeTest;
-use App\Models\PracticeTestQuestion;
+use App\Models\{PracticeTestQuestion,Question};
 use App\Models\TestSection;
 use App\Models\PracticeTestSubmission;
 use Illuminate\Http\Request;
@@ -28,11 +28,6 @@ class PracticeTestController extends Controller
                 ])
                 ->withCount('practiceTestQuestions')
                 ->latest();
-
-
-            // if ($request->filled('category')) {
-            //     $query->where('category', $request->category);
-            // }
 
             if ($request->filled('question_type')) {
                 $query->where('question_type', $request->question_type);
@@ -90,7 +85,6 @@ class PracticeTestController extends Controller
     {
         try {
             $practiceTest = $this->findPracticeTest($identifier);
-            // dd($practiceTest);
             return response()->json([
                 'status' => 'success',
                 'data' => $this->buildPracticeTestPayload($practiceTest),
@@ -112,7 +106,6 @@ class PracticeTestController extends Controller
         try {
             $practiceTest = $this->findPracticeTest($identifier);
             $section = $this->resolvePracticeSection($practiceTest, $request->integer('section_id') ?: null);
-
 
             return response()->json([
                 'status' => 'success',
@@ -144,7 +137,7 @@ class PracticeTestController extends Controller
         try {
             $practiceTest = $this->findPracticeTest($identifier);
             $query = $practiceTest->practiceTestQuestions()
-                ->with(['module', 'question.options', 'question.questionType', 'question.testContext'])
+                ->with(['module', 'question.options', 'question.questionType', 'testSections.context'])
                 ->orderBy('order');
 
             $this->applyAssignmentFilters($query, $request, $practiceTest);
@@ -285,25 +278,22 @@ class PracticeTestController extends Controller
     {
         return PracticeTest::where('id', $identifier)
             ->orWhere('slug', $identifier)
-            ->firstOrFail();
+            ->first();
     }
 
     private function buildPracticeTestPayload(PracticeTest $practiceTest, ?int $activeSectionId = null): array
     {
+        // Eager load the entire tree to prevent N+1 issues
         $practiceTest->load([
             'testSections.module',
-            'testSections.contexts',
-            'practiceTestQuestions.module',
-            'practiceTestQuestions.question.options',
-            'practiceTestQuestions.question.questionType',
-            'practiceTestQuestions.question.testContext',
-            'practiceTestQuestions.question.testContext.testSection',
+            'testSections.context',
+            'testSections.questionGroups.questions.module',
+            'testSections.questionGroups.questions.options',
+            'testSections.questionGroups.questions.questionType',
+            'testSections.questionGroups.questionType',
         ]);
 
         $sections = $this->buildSectionsPayload($practiceTest);
-        $selectedSection = $activeSectionId
-            ? $sections->firstWhere('id', $activeSectionId)
-            : null;
 
         return [
             'id' => $practiceTest->id,
@@ -312,12 +302,68 @@ class PracticeTestController extends Controller
             'duration_mins' => $practiceTest->duration_mins,
             'category' => $practiceTest->category,
             'type' => $practiceTest->type,
-            'total_questions' => $practiceTest->practiceTestQuestions->count(),
-            'active_section' => $selectedSection,
+            'total_questions' => $sections->sum('total_questions'),
+            'active_section' => $activeSectionId ? $sections->firstWhere('id', $activeSectionId) : null,
             'sections' => $sections,
         ];
     }
 
+    private function buildSectionsPayload(PracticeTest $practiceTest): Collection
+    {
+        return $practiceTest->testSections->sortBy('order')->map(function (TestSection $section) {
+            // Collect the singular context into an array for frontend consistency
+            $contexts = $section->context ? [$section->context] : [];
+
+            // Build question groups with their title, instruction, and questions
+            $questionGroups = $section->questionGroups->sortBy('sort_order')->map(function ($group) {
+                $questions = ($group->questions ?? collect())
+                    ->sortBy('sequence_number')
+                    ->values();
+
+                return [
+                    'id' => $group->id,
+                    'title' => $group->title,
+                    'instruction' => $group->instruction,
+                    'question_type' => $group->questionType,
+                    'total_questions' => $questions->count(),
+                    'questions' => $questions,
+                ];
+            })->values();
+
+            // Also keep a flat list of all questions for backward compatibility
+            $allQuestions = $questionGroups->flatMap(fn($g) => $g['questions']);
+
+            return [
+                'id' => $section->id,
+                'title' => $section->title,
+                'module' => $section->module,
+                'total_questions' => $allQuestions->count(),
+                'contexts' => $contexts,
+                'question_groups' => $questionGroups,
+                'questions' => $allQuestions,
+            ];
+        })->values();
+    }
+
+    /**
+     * Transform a Question model into an array for the frontend.
+     */
+    private function transformQuestion(Question $question): array
+    {
+        return [
+            'id'            => $question->id,
+            'text'          => $question->question_text,
+            'mark'          => $question->question_mark,
+            'sequence'      => $question->sequence_number,
+            'status'        => $question->status,
+            'type'          => $question->questionType?->name,
+            'module'        => $question->module?->title,
+            'options'       => $question->options?->map(fn($o) => [
+                'id'    => $o->id,
+                'text'  => $o->option_text,
+            ])->values(),
+        ];
+    }
     private function buildPracticeTestListPayload(PracticeTest $practiceTest): array
     {
         $assignments = $practiceTest->practiceTestQuestions;
@@ -357,52 +403,6 @@ class PracticeTestController extends Controller
                     'slug' => $questionType->slug,
                 ]),
         ];
-    }
-
-    private function buildSectionsPayload(PracticeTest $practiceTest): Collection
-    {
-        $assignments = $practiceTest->practiceTestQuestions->sortBy('order')->values();
-        $sections = $practiceTest->testSections->sortBy('order')->values();
-
-        if ($sections->isEmpty()) {
-            return $assignments
-                ->groupBy('module_id')
-                ->map(function (Collection $sectionAssignments) {
-                    $first = $sectionAssignments->first();
-
-                    return [
-                        'id' => null,
-                        'title' => $first->module?->title ?? 'Practice',
-                        'order' => null,
-                        'module' => $first->module,
-                        'total_questions' => $sectionAssignments->count(),
-                        'questions' => $sectionAssignments
-                            ->map(fn (PracticeTestQuestion $assignment) => $this->transformAssignment($assignment))
-                            ->values(),
-                    ];
-                })
-                ->values();
-        }
-
-        return $sections
-            ->map(function (TestSection $section) use ($assignments) {
-                $sectionAssignments = $assignments
-                    ->filter(fn (PracticeTestQuestion $assignment) => $this->assignmentBelongsToSection($assignment, $section))
-                    ->values();
-
-                return [
-                    'id' => $section->id,
-                    'title' => $section->title,
-                    'order' => $section->order,
-                    'module' => $section->module,
-                    'total_questions' => $sectionAssignments->count(),
-                    'contexts' => $section->contexts,
-                    'questions' => $sectionAssignments
-                        ->map(fn (PracticeTestQuestion $assignment) => $this->transformAssignment($assignment))
-                        ->values(),
-                ];
-            })
-            ->values();
     }
 
     private function buildSectionSummaries(PracticeTest $practiceTest): Collection

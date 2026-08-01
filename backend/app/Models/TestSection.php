@@ -35,24 +35,20 @@ class TestSection extends Model
     /**
      * Get the contexts for the test section.
      */
-    public function contexts()
+    public function context()
     {
-        return $this->hasMany(TestContext::class);
+        return $this->hasOne(TestContext::class);
+    }
+
+    public function questionGroups(){
+        return $this->hasMany(QuestionGroup::class);
     }
 
     /**
      * Get the practice test for this section when test_type is practice.
      */
-    public function practiceTest()
+    public function test()
     {
-        return $this->belongsTo(PracticeTest::class, 'test_id');
-    }
-
-    /**
-     * Get the mock test for this section when test_type is mock.
-     */
-    public function mockTest()
-    {
-        return $this->belongsTo(MockTest::class, 'test_id');
+        return $this->morphTo();
     }
 }

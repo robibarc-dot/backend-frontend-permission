@@ -135,7 +135,7 @@ export default function QuestionsPage() {
                                         <td className="px-4 py-5">
                                             <div className="max-w-md">
                                                 <p className="text-sm font-semibold text-slate-700 line-clamp-1">
-                                                    {question.title || "Untitled Question"}
+                                                    {question.question_text || "Untitled Question"}
                                                 </p>
                                                 <p className="mt-1 text-xs text-slate-500 line-clamp-1">
                                                     {question.content || "No content available..."}
@@ -144,13 +144,13 @@ export default function QuestionsPage() {
                                         </td>
                                         <td className="px-4 py-5">
                                             <span className="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-700">
-                                                {question.type?.name || "Standard"}
+                                                {question.question_type?.name || "Standard"}
                                             </span>
                                         </td>
                                         <td className="px-4 py-5">
                                             <div className="flex items-center gap-2 text-sm text-slate-600">
                                                 <span className="h-1.5 w-1.5 rounded-full bg-slate-300"></span>
-                                                {question.module?.name || "Unassigned"}
+                                                {question.module?.title || "Unassigned"}
                                             </div>
                                         </td>
                                         <td className="px-4 py-5">

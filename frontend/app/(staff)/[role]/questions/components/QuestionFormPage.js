@@ -23,7 +23,7 @@ import {
     useUpdateQuestionMutation,
 } from "@/redux/features/common/backend/questionApi";
 import { useGetQuestionTypesQuery } from "@/redux/features/common/backend/questionTypeApi";
-import { useGetModulesQuery } from "@/redux/features/common/backend/moduleApi";
+
 import {
     useGetQuestionGroupQuery,
     useGetQuestionGroupsQuery,
@@ -70,20 +70,6 @@ const QUESTION_CATEGORIES = {
         "Double Question",
         "Agree Disagree",
     ],
-};
-
-const EMPTY_FORM = {
-    module_id: "",
-    question_type_id: "",
-    question_group_id: "",
-    type_name: "",
-    question_text: "",
-    instruction_text: "",
-    question_mark: 1,
-    sequence_number: 1,
-    status: "active",
-    image_url: "",
-    options: [],
 };
 
 function getRequestMessage(requestError, fallback) {
@@ -154,6 +140,11 @@ function normalizeOptions(options, typeName) {
     }));
 }
 
+function normalizeIdParam(value) {
+    const match = value?.toString().match(/\d+/);
+    return match ? match[0] : "";
+}
+
 function buildPayload(formData, category) {
     const trimmedOptions = formData.options
         .map((option, index) => ({
@@ -183,9 +174,9 @@ function buildPayload(formData, category) {
         }));
 
     return {
-        test_context_id: Number(formData.test_context_id),
         module_id: Number(formData.module_id),
         question_type_id: Number(formData.question_type_id),
+        question_group_id: formData.question_group_id ? Number(formData.question_group_id) : null,
         question_text: formData.question_text.trim(),
         question_mark: Number(formData.question_mark),
         sequence_number: Number(formData.sequence_number) || 1,
@@ -201,16 +192,24 @@ export default function QuestionFormPage({ mode, questionId }) {
     const resolvedRole = role?.toLowerCase();
     const queryString = searchParams.toString();
 
-    const initialModuleIdFromParamsRef = useRef(searchParams.get("module_id")?.toString() || "");
-    const initialQuestionTypeIdFromParamsRef = useRef(searchParams.get("question_type_id")?.toString() || "");
-    const initialQuestionGroupIdFromParamsRef = useRef(searchParams.get("question_group_id")?.toString() || "");
+    const initialModuleIdFromParamsRef = useRef(normalizeIdParam(searchParams.get("module_id")));
+    const initialQuestionTypeIdFromParamsRef = useRef(normalizeIdParam(searchParams.get("question_type_id")));
+    const initialQuestionGroupIdFromParamsRef = useRef(normalizeIdParam(searchParams.get("question_group_id")));
 
     const [formData, setFormData] = useState({
-        ...EMPTY_FORM,
         module_id: initialModuleIdFromParamsRef.current,
         question_type_id: initialQuestionTypeIdFromParamsRef.current,
         question_group_id: initialQuestionGroupIdFromParamsRef.current,
+        type_name: "",
+        question_text: "",
+        instruction_text: "",
+        question_mark: 1,
+        sequence_number: 1,
+        status: "active",
+        image_url: "",
+        options: [],
     });
+
     const [backendErrors, setBackendErrors] = useState({});
     const [formMessage, setFormMessage] = useState("");
 
@@ -219,13 +218,45 @@ export default function QuestionFormPage({ mode, questionId }) {
     const { data: question, isLoading: isLoadingQuestion, isError: isQuestionError } =
         useGetQuestionQuery(questionId, { skip: !isEditMode || !questionId });
     const { data: questionTypes, isLoading: isLoadingTypes } = useGetQuestionTypesQuery();
-    const { data: modules, isLoading: isLoadingModules } = useGetModulesQuery();
+
     const { data: questionGroups, isLoading: isLoadingGroups } = useGetQuestionGroupsQuery(
         formData.question_type_id ? { question_type_id: formData.question_type_id } : {}
     );
+
     const { data: fixedQuestionGroup } = useGetQuestionGroupQuery(initialQuestionGroupIdFromParamsRef.current, {
         skip: !initialQuestionGroupIdFromParamsRef.current,
     });
+
+    const selectedQuestionGroup = useMemo(() => {
+        if (fixedQuestionGroup) {
+            return fixedQuestionGroup;
+        }
+
+        if (!questionGroups || !formData.question_group_id) {
+            return null;
+        }
+
+        return questionGroups.find((group) => String(group.id) === String(formData.question_group_id)) || null;
+    }, [fixedQuestionGroup, questionGroups, formData.question_group_id]);
+
+    const currentQuestionGroup = selectedQuestionGroup || fixedQuestionGroup;
+    const questionGroupName = currentQuestionGroup?.title || "";
+    const questionTypeName = currentQuestionGroup?.question_type?.name || "";
+    const questionModuleName = currentQuestionGroup?.test_section?.module?.title || currentQuestionGroup?.test_section?.module?.name || "";
+
+    const questionGroupOptions = useMemo(() => {
+        if (!questionGroups) {
+            return fixedQuestionGroup ? [fixedQuestionGroup] : [];
+        }
+
+        const groups = [...questionGroups];
+
+        if (fixedQuestionGroup && !groups.some((group) => String(group.id) === String(fixedQuestionGroup.id))) {
+            groups.unshift(fixedQuestionGroup);
+        }
+
+        return groups;
+    }, [fixedQuestionGroup, questionGroups]);
 
     const [createQuestion, { isLoading: isCreating }] = useCreateQuestionMutation();
     const [updateQuestion, { isLoading: isUpdating }] = useUpdateQuestionMutation();
@@ -265,9 +296,9 @@ export default function QuestionFormPage({ mode, questionId }) {
 
         setFormData((current) => ({
             ...current,
-            module_id: initialModuleIdFromParamsRef.current || String(question.module_id || ""),
-            question_type_id: initialQuestionTypeIdFromParamsRef.current || String(question.question_type_id || ""),
-            question_group_id: initialQuestionGroupIdFromParamsRef.current || String(question.question_group_id || ""),
+            module_id: current.module_id || String(question.module_id || ""),
+            question_type_id: current.question_type_id || String(question.question_type_id || ""),
+            question_group_id: current.question_group_id || String(question.question_group_id || ""),
             question_text: question.question_text || "",
             question_mark: question.question_mark || 1,
             sequence_number: question.sequence_number || 1,
@@ -276,6 +307,38 @@ export default function QuestionFormPage({ mode, questionId }) {
             type_name: question.question_type?.name || "",
         }));
     }, [question]);
+
+    useEffect(() => {
+        if (!fixedQuestionGroup) {
+            return;
+        }
+
+        setFormData((current) => {
+            const nextQuestionTypeId =
+                initialQuestionTypeIdFromParamsRef.current ||
+                String(fixedQuestionGroup.question_type_id || current.question_type_id || "");
+            const nextModuleId =
+                initialModuleIdFromParamsRef.current ||
+                String(
+                    fixedQuestionGroup.test_section?.module_id ||
+                    fixedQuestionGroup.test_section?.module?.id ||
+                    current.module_id ||
+                    ""
+                );
+            const nextTypeName = fixedQuestionGroup.question_type?.name || current.type_name || "";
+            const nextOptions =
+                current.options.length > 0 ? current.options : getInitialOptionsForType(nextTypeName);
+
+            return {
+                ...current,
+                module_id: nextModuleId,
+                question_type_id: nextQuestionTypeId,
+                question_group_id: String(fixedQuestionGroup.id || current.question_group_id || ""),
+                type_name: nextTypeName,
+                options: nextOptions,
+            };
+        });
+    }, [fixedQuestionGroup]);
 
     useEffect(() => {
         if (!questionTypes || !formData.question_type_id) {
@@ -291,10 +354,11 @@ export default function QuestionFormPage({ mode, questionId }) {
         }
 
         setFormData((current) => {
-            const nextTypeName = selectedType.name;
+            const nextTypeName = selectedType.name || current.type_name || "";
             const nextModuleId =
+                current.module_id ||
                 initialModuleIdFromParamsRef.current ||
-                String(selectedType.module_id || current.module_id || "");
+                String(selectedType.module_id || "");
             const nextOptions =
                 current.options.length > 0 ? current.options : getInitialOptionsForType(nextTypeName);
 
@@ -308,33 +372,13 @@ export default function QuestionFormPage({ mode, questionId }) {
 
             return {
                 ...current,
-                type_name: nextTypeName,
                 module_id: nextModuleId,
+                type_name: nextTypeName,
                 options: nextOptions,
             };
         });
     }, [questionTypes, formData.question_type_id]);
 
-    useEffect(() => {
-        if (!fixedQuestionGroup) {
-            return;
-        }
-
-        setFormData((current) => {
-            const nextQuestionTypeId =
-                initialQuestionTypeIdFromParamsRef.current ||
-                String(fixedQuestionGroup.question_type_id || current.question_type_id || "");
-
-            if (String(current.question_type_id) === String(nextQuestionTypeId)) {
-                return current;
-            }
-
-            return {
-                ...current,
-                question_type_id: nextQuestionTypeId,
-            };
-        });
-    }, [fixedQuestionGroup]);
 
     function clearFieldError(fieldName) {
         if (!backendErrors[fieldName]) {
@@ -357,63 +401,6 @@ export default function QuestionFormPage({ mode, questionId }) {
         setFormMessage("");
     }
 
-    function handleTypeChange(event) {
-        const typeId = event.target.value;
-        const selectedType = questionTypes?.find((type) => String(type.id) === String(typeId));
-
-        if (!selectedType) {
-            setFormData((current) => ({
-                ...current,
-                question_type_id: "",
-                type_name: "",
-                options: [],
-            }));
-            return;
-        }
-
-        updateField("question_type_id", typeId);
-        setFormData((current) => ({
-            ...current,
-            question_type_id: typeId,
-            type_name: selectedType.name,
-            module_id:
-                initialModuleIdFromParamsRef.current ||
-                String(selectedType.module_id || current.module_id || ""),
-            question_group_id: initialQuestionGroupIdFromParamsRef.current || "",
-            options: getInitialOptionsForType(selectedType.name),
-        }));
-    }
-
-    function handleOptionChange(index, field, value) {
-        setFormData((current) => {
-            const nextOptions = current.options.map((option, optionIndex) => {
-                if (optionIndex !== index) {
-                    return option;
-                }
-
-                return {
-                    ...option,
-                    [field]: value,
-                };
-            });
-
-            if (field === "is_correct" && value === true && currentCategory === "OBJECTIVE") {
-                return {
-                    ...current,
-                    options: nextOptions.map((option, optionIndex) => ({
-                        ...option,
-                        is_correct: optionIndex === index,
-                    })),
-                };
-            }
-
-            return {
-                ...current,
-                options: nextOptions,
-            };
-        });
-        setFormMessage("");
-    }
 
     function addOption() {
         setFormData((current) => ({
@@ -427,6 +414,27 @@ export default function QuestionFormPage({ mode, questionId }) {
                 },
             ],
         }));
+        setFormMessage("");
+    }
+
+    function handleOptionChange(index, field, value) {
+        setFormData((current) => ({
+            ...current,
+            options: current.options.map((option, optionIndex) => {
+                if (optionIndex !== index) {
+                    return field === "is_correct" && currentCategory === "OBJECTIVE" && value
+                        ? { ...option, is_correct: false }
+                        : option;
+                }
+
+                return {
+                    ...option,
+                    [field]: value,
+                    option_key: option.option_key || getOptionKey(optionIndex, currentCategory),
+                };
+            }),
+        }));
+        clearFieldError("options");
         setFormMessage("");
     }
 
@@ -474,7 +482,6 @@ export default function QuestionFormPage({ mode, questionId }) {
 
         try {
             const payload = buildPayload(formData, currentCategory);
-
             if (isEditMode) {
                 await updateQuestion({
                     id: questionId,
@@ -688,75 +695,19 @@ export default function QuestionFormPage({ mode, questionId }) {
                         <div className="rounded-[26px] border border-slate-200 bg-white p-6 shadow-sm">
                             <h3 className="mb-4 text-lg font-bold text-slate-900">Classification</h3>
                             <div className="space-y-4">
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-slate-700">
-                                        Question Type
-                                    </label>
-                                    <select
-                                        value={formData.question_type_id}
-                                        onChange={handleTypeChange}
-                                        required
-                                        disabled={isLoadingTypes || !!initialQuestionTypeIdFromParamsRef.current}
-                                        className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:opacity-50"
-                                    >
-                                        <option value="">Select a type...</option>
-                                        {Object.entries(categorizedTypes).map(([category, items]) =>
-                                            items?.length ? (
-                                                <optgroup key={category} label={category.replace(/_/g, " ")}>
-                                                    {items.map((type) => (
-                                                        <option key={type.id} value={String(type.id)}>
-                                                            {type.name}
-                                                        </option>
-                                                    ))}
-                                                </optgroup>
-                                            ) : null
-                                        )}
-                                    </select>
-                                    {backendErrors.question_type_id && (
-                                        <p className="mt-1 text-xs text-rose-500">{backendErrors.question_type_id[0]}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-slate-700">Module</label>
-                                    <select
-                                        name="module_id"
-                                        value={formData.module_id}
-                                        onChange={(event) => updateField("module_id", event.target.value)}
-                                        required
-                                        disabled={isLoadingModules || !!initialModuleIdFromParamsRef.current}
-                                        className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:opacity-50"
-                                    >
-                                        <option value="">Select a module...</option>
-                                        {modules?.map((module) => (
-                                            <option key={module.id} value={String(module.id)}>
-                                                {module.name || module.title}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {backendErrors.module_id && (
-                                        <p className="mt-1 text-xs text-rose-500">{backendErrors.module_id[0]}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-slate-700">
-                                        Question Group
-                                    </label>
-                                    <select
-                                        name="question_group_id"
-                                        value={formData.question_group_id}
-                                        onChange={(event) => updateField("question_group_id", event.target.value)}
-                                        disabled={isLoadingGroups || !!initialQuestionGroupIdFromParamsRef.current}
-                                        className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:opacity-50"
-                                    >
-                                        <option value="">Select a group...</option>
-                                        {questionGroups?.map((group) => (
-                                            <option key={group.id} value={String(group.id)}>
-                                                {group.title || `Group #${group.id}`}
-                                            </option>
-                                        ))}
-                                    </select>
+                                <div className="space-y-3">
+                                    <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+                                        <p className="text-xs font-semibold text-blue-700">MODULE</p>
+                                        <p className="mt-1 text-base font-bold text-blue-900">{questionModuleName || "Not selected"}</p>
+                                    </div>
+                                    <div className="rounded-2xl border border-purple-200 bg-purple-50 p-4">
+                                        <p className="text-xs font-semibold text-purple-700">QUESTION TYPE</p>
+                                        <p className="mt-1 text-base font-bold text-purple-900">{questionTypeName || "Not selected"}</p>
+                                    </div>
+                                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                                        <p className="text-xs font-semibold text-emerald-700">QUESTION GROUP</p>
+                                        <p className="mt-1 text-base font-bold text-emerald-900">{questionGroupName || "Not selected"}</p>
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
@@ -811,8 +762,7 @@ export default function QuestionFormPage({ mode, questionId }) {
                             <div className="flex items-start gap-3 text-sm text-slate-500">
                                 <FileText className="mt-0.5 text-slate-400" size={18} />
                                 <p>
-                                    `instruction_text`, `image_url`, and `question_group_id` are managed in this UI,
-                                    but the current question API only persists the core question fields plus options.
+                                    The question type, module, and question group are automatically determined from your selection. Fill in the question content, options, and settings to complete the form.
                                 </p>
                             </div>
                         </div>
